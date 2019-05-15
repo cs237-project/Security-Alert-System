@@ -1,4 +1,4 @@
-package com.securityalertsystem.rabbitmq.Controller;
+package com.securityalertsystem.controller;
 
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.repository.ClientRepository;

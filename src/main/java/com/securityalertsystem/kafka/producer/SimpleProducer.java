@@ -1,5 +1,6 @@
 package com.securityalertsystem.kafka.producer;
 
+import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.kafka.common.MessageEntity;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,21 +15,21 @@ public class SimpleProducer {
 
     @Autowired
     @Qualifier("kafkaTemplate")
-    private KafkaTemplate<String, MessageEntity> kafkaTemplate;
+    private KafkaTemplate<String, AlertMessage> kafkaTemplate;
 
-    public void send(String topic, MessageEntity message) {
+    public void send(String topic, AlertMessage message) {
         kafkaTemplate.send(topic, message);
     }
 
-    public void send(String topic, String key, MessageEntity entity) {
-        ProducerRecord<String, MessageEntity> record = new ProducerRecord<>(
+    public void send(String topic, String key, AlertMessage entity) {
+        ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
                 topic,
                 key,
                 entity);
 
         long startTime = System.currentTimeMillis();
 
-        ListenableFuture<SendResult<String, MessageEntity>> future = kafkaTemplate.send(record);
+        ListenableFuture<SendResult<String, AlertMessage>> future = kafkaTemplate.send(record);
         future.addCallback(new ProducerCallback(startTime, key, entity));
     }
 

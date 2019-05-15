@@ -1,5 +1,6 @@
 package com.securityalertsystem.kafka.config;
 
+import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.kafka.common.MessageEntity;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -43,14 +44,14 @@ public class KafkaProducerConfig {
         return props;
     }
 
-    public ProducerFactory<String, MessageEntity> producerFactory() {
+    public ProducerFactory<String, AlertMessage> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs(),
                 new StringSerializer(),
-                new JsonSerializer<MessageEntity>());
+                new JsonSerializer<AlertMessage>());
     }
 
     @Bean
-    public KafkaTemplate<String, MessageEntity> kafkaTemplate() {
+    public KafkaTemplate<String, AlertMessage> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

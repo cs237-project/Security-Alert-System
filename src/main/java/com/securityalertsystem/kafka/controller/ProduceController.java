@@ -2,6 +2,7 @@ package com.securityalertsystem.kafka.controller;
 
 
 import com.google.gson.Gson;
+import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.kafka.common.ErrorCode;
 import com.securityalertsystem.kafka.common.MessageEntity;
 import com.securityalertsystem.kafka.common.Response;
@@ -34,7 +35,7 @@ public class ProduceController {
 
 
     @RequestMapping(value = "/send", method = RequestMethod.POST, produces = {"application/json"})
-    public Response sendKafka(@RequestBody MessageEntity message) {
+    public Response sendKafka(@RequestBody AlertMessage message) {
         try {
             log.info("kafka的消息={}", gson.toJson(message));
             simpleProducer.send(topic, "key", message);

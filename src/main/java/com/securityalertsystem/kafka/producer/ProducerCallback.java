@@ -2,6 +2,7 @@ package com.securityalertsystem.kafka.producer;
 
 
 import com.google.gson.Gson;
+import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.kafka.common.MessageEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -10,15 +11,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
 @Slf4j
-public class ProducerCallback implements ListenableFutureCallback<SendResult<String, MessageEntity>> {
+public class ProducerCallback implements ListenableFutureCallback<SendResult<String, AlertMessage>> {
 
     private final long startTime;
     private final String key;
-    private final MessageEntity message;
+    private final AlertMessage message;
 
     private final Gson gson = new Gson();
 
-    public ProducerCallback(long startTime, String key, MessageEntity message) {
+    public ProducerCallback(long startTime, String key, AlertMessage message) {
         this.startTime = startTime;
         this.key = key;
         this.message = message;
@@ -26,7 +27,7 @@ public class ProducerCallback implements ListenableFutureCallback<SendResult<Str
 
 
     @Override
-    public void onSuccess(@Nullable SendResult<String, MessageEntity> result) {
+    public void onSuccess(@Nullable SendResult<String, AlertMessage> result) {
         if (result == null) {
             return;
         }

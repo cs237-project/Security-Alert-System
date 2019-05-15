@@ -6,6 +6,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import com.securityalertsystem.Constants.Constants;
+import com.securityalertsystem.Service.MessageService;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.repository.ClientRepository;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.securityalertsystem.rabbitmq.Controller.SenderController.TYPE;
+import static com.securityalertsystem.rabbitmq.Controller.SenderController.latitude;
+import static com.securityalertsystem.rabbitmq.Controller.SenderController.longitude;
 
 
 @Component
@@ -28,28 +31,15 @@ public class ReceiverController {
     @Autowired
     ClientRepository clientRepository;
 
+    @Autowired
+    MessageService messageService;
+
 
     private List<String> receivedMessages = new ArrayList<>();
     private List<Integer> high_client = new ArrayList<>();
     private List<Integer> mid_client = new ArrayList<>();
     private List<Integer> low_client = new ArrayList<>();
 
-
-
-//    @RabbitListener(
-//            bindings = @QueueBinding(
-//                    value = @Queue(value = "alert-queue0",durable="true"),
-//                    exchange = @Exchange(name = "alert-exchange0",durable = "true",type="fanout"),
-//                    key = "alert.*"
-//            )
-//    )
-//    @RabbitHandler
-//    public void onOrderMessage0(@Payload AlertMessage message,
-//                                @Headers Map<String,Object> headers,
-//                                Channel channel) throws Exception{
-//        String consumerNum = "Consumer with priority 0";
-//        receiveMessage(consumerNum,message,headers,channel);
-//    }
 
     private void onAlertMessage(String exchangeName,int clientId,int priority) throws Exception{
         ConnectionFactory factory = new ConnectionFactory();
@@ -64,26 +54,12 @@ public class ReceiverController {
         DeliverCallback deliverCallback = (consumerTag, delivery)->{
             AlertMessage message =  SerializationUtils.deserialize(delivery.getBody());
 
-            receivedMessages.add(transferMessage(clientId,priority,message));
+            receivedMessages.add(messageService.transferMessage(clientId,priority,message));
         };
         channel.basicConsume(queueName,true,deliverCallback,consumerTag->{});
 
     }
 
-
-    private String transferMessage(int consumer, int priority, AlertMessage message){
-        System.err.println("----------received message-----------");
-        System.err.println("message ID: "+message.getMessageId());
-        message.setReceivedTime(System.currentTimeMillis()-message.getReceivedTime());
-        String result = "<p>"+consumer+" "+"priority="+priority+" "+
-                "MessageId: "+message.getMessageId()+" "+
-                "Location: "+message.getLocation()+" "+
-                "Emergency Type: "+message.getType()+" "+
-                "Happen Time: "+message.getHappenTime()+" " +
-                "Time gap of receiving message: "+message.getReceivedTime()+"</p>";
-        return result;
-
-    }
 
     @RequestMapping("/createQueue")
     public String createQueue(){
@@ -94,28 +70,8 @@ public class ReceiverController {
         if(TYPE.equals("")){
             return "There is no Message";
         }
-        boolean useCurLoc = TYPE.equals(Constants.GUNSHOT)||
-                TYPE.equals(Constants.ROBBERY)||
-                TYPE.equals(Constants.SEXASSUALT);
-
-        for(Client client:clients){
-            double distance;
-            if(useCurLoc){
-                distance = Math.pow(SenderController.latitude-client.getLocationx(),2)+
-                        Math.pow(SenderController.longitude-client.getLocationy(),2);
-            }else{
-                distance = Math.pow(SenderController.latitude-client.getAddressx(),2)+
-                        Math.pow(SenderController.longitude-client.getAddressy(),2);
-            }
-
-            if(distance<=40){
-                high_client.add(client.getClientId());
-            }else if(distance>40 && distance<=100){
-                mid_client.add(client.getClientId());
-            }else{
-                low_client.add(client.getClientId());
-            }
-        }
+        messageService.calPriority(clients,high_client,mid_client,low_client,
+               latitude, longitude, TYPE);
         for(int id:high_client){
             try {
                 onAlertMessage("alert-exchange0",id,0);
