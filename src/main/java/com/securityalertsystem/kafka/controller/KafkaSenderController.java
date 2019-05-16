@@ -6,14 +6,18 @@ import com.securityalertsystem.Service.MessageService;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.common.ErrorCode;
 import com.securityalertsystem.common.Response;
+import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.kafka.producer.SimpleProducer;
 import com.securityalertsystem.rabbitmq.producer.RabbitAlertSender;
+import com.securityalertsystem.repository.ClientRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 @Slf4j
@@ -25,6 +29,8 @@ public class KafkaSenderController {
 
     @Autowired
     public MessageService messageService;
+    @Autowired
+    ClientRepository clientRepository;
 
 
     static String TYPE = "";
@@ -40,18 +46,45 @@ public class KafkaSenderController {
 
     @RequestMapping(value = "/send", method = RequestMethod.POST, produces = {"application/json"})
     public Response sendKafka(@RequestBody AlertMessage message) {
+
+        List<Client> clients = clientRepository.findAll();
+        if(clients.size()==0){
+            return new Response(ErrorCode.EXCEPTION,"Please add clients");
+        }
+        List<Integer> group1=new ArrayList<>(),group2 = new ArrayList<>(),group3 = new ArrayList<>();
+        messageService.calPriority(clients,group1,group2,group3,latitude,longitude,TYPE);
+        int len1 = group1.size(),len2 = group2.size(),len3=group3.size();
+        sendTime = System.currentTimeMillis();
         try {
-            log.info("kafka message={}", gson.toJson(message));
-            sendTime = System.currentTimeMillis();
-            messageService.sendAlertNearby(TYPE,happenTime,simpleProducer,sendTime);
-            messageService.sendAlertMid(TYPE,happenTime,simpleProducer,sendTime);
-            messageService.sendAlertFaraway(TYPE,happenTime,simpleProducer,sendTime);
-            log.info("send kafka successfully.");
+            for (int i = 0; i < len1; i++) {
+                messageService.sendAlertNearby(TYPE, happenTime, simpleProducer, sendTime);
+            }
+            for (int i = 0; i < len2; i++) {
+                messageService.sendAlertMid(TYPE, happenTime, simpleProducer, sendTime);
+            }
+            for (int i = 0; i < len3; i++) {
+                messageService.sendAlertFaraway(TYPE, happenTime, simpleProducer, sendTime);
+            }
             return new Response(ErrorCode.SUCCESS, "send kafka succeed");
-        } catch (Exception e) {
-            log.error("send kafka fail", e);
+        }catch (Exception e){
             return new Response(ErrorCode.EXCEPTION, "send kafka fail");
         }
+
+
+
+
+//        try {
+//            log.info("kafka message={}", gson.toJson(message));
+//            sendTime = System.currentTimeMillis();
+//            messageService.sendAlertNearby(TYPE,happenTime,simpleProducer,sendTime);
+//            messageService.sendAlertMid(TYPE,happenTime,simpleProducer,sendTime);
+//            messageService.sendAlertFaraway(TYPE,happenTime,simpleProducer,sendTime);
+//            log.info("send kafka successfully.");
+//            return new Response(ErrorCode.SUCCESS, "send kafka succeed");
+//        } catch (Exception e) {
+//            log.error("send kafka fail", e);
+//            return new Response(ErrorCode.EXCEPTION, "send kafka fail");
+//        }
     }
 
     @RequestMapping(value="/create/{type}")

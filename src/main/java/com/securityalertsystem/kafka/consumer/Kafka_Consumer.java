@@ -1,6 +1,7 @@
 package com.securityalertsystem.kafka.consumer;
 
 
+import com.securityalertsystem.entity.AlertMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -17,9 +18,9 @@ import java.util.concurrent.TimeUnit;
 
 
 public final class Kafka_Consumer {
-    private final KafkaConsumer<String, String> consumer1;
-    private final KafkaConsumer<String, String> consumer2;
-    private final KafkaConsumer<String, String> consumer3;
+    private final KafkaConsumer<String, AlertMessage> consumer1;
+    private final KafkaConsumer<String, AlertMessage> consumer2;
+    private final KafkaConsumer<String, AlertMessage> consumer3;
     @Value("${kafka.consumer.servers}")
     private String servers;
     @Value("${kafka.consumer.enable.auto.commit}")
@@ -56,9 +57,9 @@ public final class Kafka_Consumer {
         executorService = Executors.newFixedThreadPool(18);
         while (true) {
             Duration duration = Duration.ofMillis(100);
-            ConsumerRecords<String, String> records1 = consumer1.poll(duration);
-            ConsumerRecords<String, String> records2 = consumer1.poll(duration);
-            ConsumerRecords<String, String> records3 = consumer1.poll(duration);
+            ConsumerRecords<String, AlertMessage> records1 = consumer1.poll(duration);
+            ConsumerRecords<String, AlertMessage> records2 = consumer1.poll(duration);
+            ConsumerRecords<String, AlertMessage> records3 = consumer1.poll(duration);
             if (null != records1 || null != records2 || null != records3) {
                 executorService.submit(new ConsumerThread(records1));
                 executorService.submit(new ConsumerThread(records2));

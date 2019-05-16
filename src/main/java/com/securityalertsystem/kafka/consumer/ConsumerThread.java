@@ -1,6 +1,7 @@
 package com.securityalertsystem.kafka.consumer;
 
 import com.google.gson.Gson;
+import com.securityalertsystem.entity.AlertMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -10,17 +11,17 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
  */
 @Slf4j
 class ConsumerThread implements Runnable {
-    private ConsumerRecords<String, String> records;
+    private ConsumerRecords<String, AlertMessage> records;
 
     private final Gson gson = new Gson();
 
-    public ConsumerThread(ConsumerRecords<String, String> records) {
+    public ConsumerThread(ConsumerRecords<String, AlertMessage> records) {
         this.records = records;
     }
 
     @Override
     public void run() {
-        for (ConsumerRecord<String, String> record : records) {
+        for (ConsumerRecord<String, AlertMessage> record : records) {
             log.info(gson.toJson(record));
             System.out.println("当前线程:" + Thread.currentThread() + ","
                     + "偏移量:" + record.offset() + "," + "主题:"
