@@ -5,7 +5,6 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
-import com.securityalertsystem.Constants.Constants;
 import com.securityalertsystem.Service.MessageService;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
@@ -19,15 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.securityalertsystem.rabbitmq.Controller.SenderController.TYPE;
-import static com.securityalertsystem.rabbitmq.Controller.SenderController.latitude;
-import static com.securityalertsystem.rabbitmq.Controller.SenderController.longitude;
+import static com.securityalertsystem.rabbitmq.Controller.RabbitSenderController.TYPE;
+import static com.securityalertsystem.rabbitmq.Controller.RabbitSenderController.latitude;
+import static com.securityalertsystem.rabbitmq.Controller.RabbitSenderController.longitude;
 
 
 @Component
 @RestController
 @RequestMapping("/rabbitmq/messageReceiver")
-public class ReceiverController {
+public class RabbitReceiverController {
     @Autowired
     ClientRepository clientRepository;
 

@@ -2,6 +2,8 @@ package com.securityalertsystem.kafka.controller;
 
 
 import com.google.gson.Gson;
+import com.securityalertsystem.Service.MessageService;
+import com.securityalertsystem.activemq.controller.ActiveSenderController;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.kafka.consumer.Kafka_Consumer;
@@ -24,13 +26,19 @@ import java.util.concurrent.ExecutorService;
 @Component
 @RestController
 @RequestMapping("/kafka/messageReceiver")
-public class ReceiverController {
+public class KafkaReceiverController {
     @Autowired
     ClientRepository clientRepository;
+
+    @Autowired
+    MessageService messageService;
 
     @RequestMapping("/createQueue")
     public void listener() {
         List<Client> clients = clientRepository.findAll();
+        List<Integer> high_client = new ArrayList<>(),mid_client=new ArrayList<>(),low_client= new ArrayList<>();
+        messageService.calPriority(clients,high_client,mid_client,low_client,
+                KafkaSenderController.latitude, KafkaSenderController.longitude, KafkaSenderController.TYPE);
         Kafka_Consumer kafka_Consumer = new Kafka_Consumer();
         try {
             kafka_Consumer.execute();

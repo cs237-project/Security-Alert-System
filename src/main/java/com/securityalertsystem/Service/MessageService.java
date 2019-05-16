@@ -1,13 +1,10 @@
 package com.securityalertsystem.Service;
 
 import com.securityalertsystem.Constants.Constants;
-import com.securityalertsystem.activemq.controller.SenderController;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.UUID;
 

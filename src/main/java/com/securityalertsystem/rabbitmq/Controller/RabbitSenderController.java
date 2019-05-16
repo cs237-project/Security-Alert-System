@@ -1,8 +1,10 @@
-package com.securityalertsystem.activemq.controller;
+package com.securityalertsystem.rabbitmq.Controller;
+
+
 
 import com.securityalertsystem.Service.MessageService;
-import com.securityalertsystem.activemq.producer.ActiveAlertSender;
-import com.securityalertsystem.Service.MessageService.*;
+import com.securityalertsystem.entity.AlertMessage;
+import com.securityalertsystem.rabbitmq.producer.RabbitAlertSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,33 +14,33 @@ import java.util.Date;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/activemq/messageSender")
-public class SenderController{
+@RequestMapping("/rabbitmq/messageSender")
+public class RabbitSenderController {
 
     static String TYPE = "";
     static double latitude;
     static double longitude;
 
     @Autowired
-    private ActiveAlertSender alertSender;
+    private RabbitAlertSender alertSender;
+
     @Autowired
     public MessageService messageService;
-
 
 
     private static String happenTime = new Date().toString();
     private static long sendTime;
 
-    @RequestMapping("/send")
-    public void sendMsg(String msg) {
 
+
+    @RequestMapping(value="/send")
+    public String sendAlerts(){
         sendTime = System.currentTimeMillis();
         messageService.sendAlertNearby(TYPE,happenTime,alertSender,sendTime);
         messageService.sendAlertMid(TYPE,happenTime,alertSender,sendTime);
         messageService.sendAlertFaraway(TYPE,happenTime,alertSender,sendTime);
-        System.out.println("msg发送成功");
+        return "Messages Sent Successfully";
     }
-
     @RequestMapping(value="/create/{type}")
     public String createAlerts(@PathVariable(name = "type") String type){
         TYPE = type;
@@ -46,6 +48,5 @@ public class SenderController{
         longitude = 40+Math.random()*30;
         return "Messages Created Successfully";
     }
-
 
 }

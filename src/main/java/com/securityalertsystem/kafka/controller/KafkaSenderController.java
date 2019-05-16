@@ -19,7 +19,7 @@ import java.util.Date;
 @Slf4j
 @RestController
 @RequestMapping("/kafka")
-public class ProduceController {
+public class KafkaSenderController {
     @Autowired
     private SimpleProducer simpleProducer;
 
