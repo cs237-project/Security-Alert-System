@@ -106,13 +106,14 @@ public class ReceiverController {
 
     @RequestMapping("/getMsg")
     public String getMsg(){
-        String result = "";
+            StringBuilder sb = new StringBuilder();
+
         if(receivedMessages.size()>0){
             for(String receivedMessage:receivedMessages){
-                result += receivedMessage;
+                sb.append(receivedMessage);
             }
         }
-        return result;
+        return sb.toString();
     }
 
 }

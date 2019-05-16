@@ -1,4 +1,4 @@
-package com.securityalertsystem.kafka.common;
+package com.securityalertsystem.common;
 
 public class ErrorCode {
     public final static int SUCCESS = 200;

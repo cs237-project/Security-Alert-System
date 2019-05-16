@@ -1,7 +1,6 @@
 package com.securityalertsystem.kafka.config;
 
 import com.securityalertsystem.entity.AlertMessage;
-import com.securityalertsystem.kafka.common.MessageEntity;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +46,7 @@ public class KafkaProducerConfig {
     public ProducerFactory<String, AlertMessage> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs(),
                 new StringSerializer(),
-                new JsonSerializer<AlertMessage>());
+                new JsonSerializer<>());
     }
 
     @Bean

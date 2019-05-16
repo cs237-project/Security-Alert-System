@@ -1,36 +1,55 @@
 package com.securityalertsystem.kafka.producer;
 
+import com.securityalertsystem.Service.AlertSender;
 import com.securityalertsystem.entity.AlertMessage;
-import com.securityalertsystem.kafka.common.MessageEntity;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 
 @Component
-public class SimpleProducer {
+public class SimpleProducer implements AlertSender {
 
     @Autowired
     @Qualifier("kafkaTemplate")
     private KafkaTemplate<String, AlertMessage> kafkaTemplate;
 
-    public void send(String topic, AlertMessage message) {
-        kafkaTemplate.send(topic, message);
-    }
 
-    public void send(String topic, String key, AlertMessage entity) {
+
+//    public void send(String topic, AlertMessage message) {
+//        kafkaTemplate.send(topic, message);
+//    }
+    @Override
+    public void send1(AlertMessage message) {
         ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
-                topic,
-                key,
-                entity);
+                "topic1",
+                "key",
+                message);
 
-        long startTime = System.currentTimeMillis();
-
-        ListenableFuture<SendResult<String, AlertMessage>> future = kafkaTemplate.send(record);
-        future.addCallback(new ProducerCallback(startTime, key, entity));
+        kafkaTemplate.send(record);
     }
 
+    @Override
+    public void send2(AlertMessage message) {
+        ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
+                "topic2",
+                "key",
+                message);
+
+        kafkaTemplate.send(record);
+    }
+
+    @Override
+    public void send3(AlertMessage message) {
+        ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
+                "topic3",
+                "key",
+                message);
+
+        kafkaTemplate.send(record);
+    }
 }

@@ -1,7 +1,7 @@
 package com.securityalertsystem.kafka.config;
 
 
-import com.securityalertsystem.kafka.common.MessageEntity;
+import com.securityalertsystem.entity.AlertMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,27 +30,61 @@ public class KafkaConsumerConfig {
     private String sessionTimeout;
     @Value("${kafka.consumer.auto.commit.interval}")
     private String autoCommitInterval;
-    @Value("${kafka.consumer.group.id}")
-    private String groupId;
     @Value("${kafka.consumer.auto.offset.reset}")
     private String autoOffsetReset;
     @Value("${kafka.consumer.concurrency}")
     private int concurrency;
 
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, MessageEntity>> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, MessageEntity> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, AlertMessage>> kafkaListenerContainerFactory1() {
+        ConcurrentKafkaListenerContainerFactory<String, AlertMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory1());
+        factory.setConcurrency(concurrency);
+        factory.getContainerProperties().setPollTimeout(1500);
+        return factory;
+    }
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, AlertMessage>> kafkaListenerContainerFactory2() {
+        ConcurrentKafkaListenerContainerFactory<String, AlertMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory2());
+        factory.setConcurrency(concurrency);
+        factory.getContainerProperties().setPollTimeout(1500);
+        return factory;
+    }
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, AlertMessage>> kafkaListenerContainerFactory3() {
+        ConcurrentKafkaListenerContainerFactory<String, AlertMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory3());
         factory.setConcurrency(concurrency);
         factory.getContainerProperties().setPollTimeout(1500);
         return factory;
     }
 
-    private ConsumerFactory<String, MessageEntity> consumerFactory() {
+    private ConsumerFactory<String, AlertMessage> consumerFactory1() {
+        Map<String, Object> properties = consumerConfigs();
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "group1");
         return new DefaultKafkaConsumerFactory<>(
-                consumerConfigs(),
+                properties,
                 new StringDeserializer(),
-                new JsonDeserializer<>(MessageEntity.class)
+                new JsonDeserializer<>(AlertMessage.class)
+        );
+    }
+    private ConsumerFactory<String, AlertMessage> consumerFactory2() {
+        Map<String, Object> properties = consumerConfigs();
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "group2");
+        return new DefaultKafkaConsumerFactory<>(
+                properties,
+                new StringDeserializer(),
+                new JsonDeserializer<>(AlertMessage.class)
+        );
+    }
+    private ConsumerFactory<String, AlertMessage> consumerFactory3() {
+        Map<String, Object> properties = consumerConfigs();
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "group3");
+        return new DefaultKafkaConsumerFactory<>(
+                properties,
+                new StringDeserializer(),
+                new JsonDeserializer<>(AlertMessage.class)
         );
     }
 
@@ -63,7 +97,6 @@ public class KafkaConsumerConfig {
         propsMap.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeout);
         propsMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         propsMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        propsMap.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         propsMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
         return propsMap;
     }

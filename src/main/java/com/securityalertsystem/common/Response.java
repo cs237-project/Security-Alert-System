@@ -1,4 +1,4 @@
-package com.securityalertsystem.kafka.common;
+package com.securityalertsystem.common;
 
 import lombok.Getter;
 import lombok.Setter;

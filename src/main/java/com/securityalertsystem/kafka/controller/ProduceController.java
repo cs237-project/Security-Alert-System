@@ -2,18 +2,18 @@ package com.securityalertsystem.kafka.controller;
 
 
 import com.google.gson.Gson;
+import com.securityalertsystem.Service.MessageService;
 import com.securityalertsystem.entity.AlertMessage;
-import com.securityalertsystem.kafka.common.ErrorCode;
-import com.securityalertsystem.kafka.common.MessageEntity;
-import com.securityalertsystem.kafka.common.Response;
+import com.securityalertsystem.common.ErrorCode;
+import com.securityalertsystem.common.Response;
 import com.securityalertsystem.kafka.producer.SimpleProducer;
+import com.securityalertsystem.rabbitmq.producer.RabbitAlertSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 
 @Slf4j
@@ -23,28 +23,43 @@ public class ProduceController {
     @Autowired
     private SimpleProducer simpleProducer;
 
-    @Value("${kafka.topic.default}")
-    private String topic;
+    @Autowired
+    public MessageService messageService;
+
+
+    static String TYPE = "";
+    static double latitude;
+    static double longitude;
+
+    private static String happenTime = new Date().toString();
+    private static long sendTime;
+
 
     private Gson gson = new Gson();
-
-    @RequestMapping(value = "/hello", method = RequestMethod.GET, produces = {"application/json"})
-    public Response sendKafka() {
-        return new Response(ErrorCode.SUCCESS, "OK");
-    }
 
 
     @RequestMapping(value = "/send", method = RequestMethod.POST, produces = {"application/json"})
     public Response sendKafka(@RequestBody AlertMessage message) {
         try {
-            log.info("kafka的消息={}", gson.toJson(message));
-            simpleProducer.send(topic, "key", message);
-            log.info("发送kafka成功.");
-            return new Response(ErrorCode.SUCCESS, "发送kafka成功");
+            log.info("kafka message={}", gson.toJson(message));
+            sendTime = System.currentTimeMillis();
+            messageService.sendAlertNearby(TYPE,happenTime,simpleProducer,sendTime);
+            messageService.sendAlertMid(TYPE,happenTime,simpleProducer,sendTime);
+            messageService.sendAlertFaraway(TYPE,happenTime,simpleProducer,sendTime);
+            log.info("send kafka successfully.");
+            return new Response(ErrorCode.SUCCESS, "send kafka succeed");
         } catch (Exception e) {
-            log.error("发送kafka失败", e);
-            return new Response(ErrorCode.EXCEPTION, "发送kafka失败");
+            log.error("send kafka fail", e);
+            return new Response(ErrorCode.EXCEPTION, "send kafka fail");
         }
+    }
+
+    @RequestMapping(value="/create/{type}")
+    public String createAlerts(@PathVariable(name = "type") String type){
+        TYPE = type;
+        latitude = 45+Math.random()*30;
+        longitude = 40+Math.random()*30;
+        return "Messages Created Successfully";
     }
 
 }
