@@ -5,8 +5,12 @@ import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import static java.lang.Math.sqrt;
 
 @Component
 public class MessageService {
@@ -62,6 +66,28 @@ public class MessageService {
                 "Time gap of receiving message: "+message.getReceivedTime()+"</p>";
         return result;
     }
+    public String transferMessage(String topic,String message){
+        //{"messageId":"1558071957842$cabcf621-1a58-4346-bacf-56292f2cc214","type":"flooding","location":"3-10 miles away","happenTime":"Thu May 16 22:45:33 PDT 2019","receivedTime":1558071957842}
+        System.err.println("----------received message-----------");
+        message = message.substring(1,message.length()-1);
+        String[] elements = message.split(",");
+        Map<String,String> map = new HashMap<>();
+        for(String element:elements){
+            String[] pair = element.split(":");
+            map.put(pair[0],pair[1]);
+        }
+        System.err.println("message ID: "+map.get("\"messageId\""));
+        System.err.println(topic);
+        long gap = System.currentTimeMillis()-Long.valueOf(map.get("\"receivedTime\""));
+        map.put("\"receivedTime\"",String.valueOf(gap));
+        String result = "<p>"+" "+topic+" "+
+                "MessageId: "+map.get("\"messageId\"")+" "+
+                "Location: "+map.get("\"location\"")+" "+
+                "Emergency Type: "+map.get("\"type\"")+" "+
+                "Happen Time: "+map.get("\"happenTime\"")+" " +
+                "Time gap of receiving message: "+map.get("\"receivedTime\"")+"</p>";
+        return result;
+    }
 
     public void calPriority(List<Client> clients,List<Integer> group1,List<Integer> group2, List<Integer> group3,
                             double latitude,double longitude,String type){
@@ -71,16 +97,16 @@ public class MessageService {
         for(Client client:clients){
             double distance;
             if(useCurLoc){
-                distance = Math.pow(latitude-client.getLocationx(),2)+
-                        Math.pow(longitude-client.getLocationy(),2);
+                distance = sqrt(Math.pow(latitude-client.getLocationx(),2)+
+                        Math.pow(longitude-client.getLocationy(),2));
             }else{
-                distance = Math.pow(latitude-client.getAddressx(),2)+
-                        Math.pow(longitude-client.getAddressy(),2);
+                distance = sqrt(Math.pow(latitude-client.getAddressx(),2)+
+                        Math.pow(longitude-client.getAddressy(),2));
             }
 
-            if(distance<=40){
+            if(distance<=8){
                 group1.add(client.getClientId());
-            }else if(distance>40 && distance<=100){
+            }else if(distance>8 && distance<=12){
                 group2.add(client.getClientId());
             }else{
                 group3.add(client.getClientId());

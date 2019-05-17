@@ -27,7 +27,6 @@ public class SimpleProducer implements AlertSender {
     public void send1(AlertMessage message) {
         ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
                 "topic1",
-                "key",
                 message);
 
         kafkaTemplate.send(record);
@@ -37,7 +36,6 @@ public class SimpleProducer implements AlertSender {
     public void send2(AlertMessage message) {
         ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
                 "topic2",
-                "key",
                 message);
 
         kafkaTemplate.send(record);
@@ -47,7 +45,6 @@ public class SimpleProducer implements AlertSender {
     public void send3(AlertMessage message) {
         ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
                 "topic3",
-                "key",
                 message);
 
         kafkaTemplate.send(record);

@@ -22,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/kafka")
+@RequestMapping("/kafka/messageSender")
 public class KafkaSenderController {
     @Autowired
     private SimpleProducer simpleProducer;
@@ -46,6 +46,9 @@ public class KafkaSenderController {
 
     @RequestMapping(value = "/send", produces = {"application/json"})
     public Response sendKafka() {
+        if(TYPE.equals("")){
+            return new Response(ErrorCode.EXCEPTION,"Please create message");
+        }
 
         List<Client> clients = clientRepository.findAll();
         if(clients.size()==0){
@@ -55,6 +58,7 @@ public class KafkaSenderController {
         messageService.calPriority(clients,group1,group2,group3,latitude,longitude,TYPE);
         int len1 = group1.size(),len2 = group2.size(),len3=group3.size();
         sendTime = System.currentTimeMillis();
+
         try {
             for (int i = 0; i < len1; i++) {
                 messageService.sendAlertNearby(TYPE, happenTime, simpleProducer, sendTime);
@@ -65,26 +69,12 @@ public class KafkaSenderController {
             for (int i = 0; i < len3; i++) {
                 messageService.sendAlertFaraway(TYPE, happenTime, simpleProducer, sendTime);
             }
+            KafkaReceiverController.receivedMessages = new ArrayList<>();
             return new Response(ErrorCode.SUCCESS, "send kafka succeed");
         }catch (Exception e){
             return new Response(ErrorCode.EXCEPTION, "send kafka fail");
         }
 
-
-
-
-//        try {
-//            log.info("kafka message={}", gson.toJson(message));
-//            sendTime = System.currentTimeMillis();
-//            messageService.sendAlertNearby(TYPE,happenTime,simpleProducer,sendTime);
-//            messageService.sendAlertMid(TYPE,happenTime,simpleProducer,sendTime);
-//            messageService.sendAlertFaraway(TYPE,happenTime,simpleProducer,sendTime);
-//            log.info("send kafka successfully.");
-//            return new Response(ErrorCode.SUCCESS, "send kafka succeed");
-//        } catch (Exception e) {
-//            log.error("send kafka fail", e);
-//            return new Response(ErrorCode.EXCEPTION, "send kafka fail");
-//        }
     }
 
     @RequestMapping(value="/create/{type}")
