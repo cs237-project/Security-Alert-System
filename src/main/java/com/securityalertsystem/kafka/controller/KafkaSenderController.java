@@ -44,8 +44,8 @@ public class KafkaSenderController {
     private Gson gson = new Gson();
 
 
-    @RequestMapping(value = "/send", method = RequestMethod.POST, produces = {"application/json"})
-    public Response sendKafka(@RequestBody AlertMessage message) {
+    @RequestMapping(value = "/send", produces = {"application/json"})
+    public Response sendKafka() {
 
         List<Client> clients = clientRepository.findAll();
         if(clients.size()==0){
