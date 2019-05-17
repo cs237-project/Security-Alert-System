@@ -69,6 +69,7 @@ public class MessageService {
     public String transferMessage(String topic,String message){
         //{"messageId":"1558071957842$cabcf621-1a58-4346-bacf-56292f2cc214","type":"flooding","location":"3-10 miles away","happenTime":"Thu May 16 22:45:33 PDT 2019","receivedTime":1558071957842}
         System.err.println("----------received message-----------");
+        long curTime = System.currentTimeMillis();
         message = message.substring(1,message.length()-1);
         String[] elements = message.split(",");
         Map<String,String> map = new HashMap<>();
@@ -78,7 +79,7 @@ public class MessageService {
         }
         System.err.println("message ID: "+map.get("\"messageId\""));
         System.err.println(topic);
-        long gap = System.currentTimeMillis()-Long.valueOf(map.get("\"receivedTime\""));
+        long gap = curTime-Long.valueOf(map.get("\"receivedTime\""));
         map.put("\"receivedTime\"",String.valueOf(gap));
         String result = "<p>"+" "+topic+" "+
                 "MessageId: "+map.get("\"messageId\"")+" "+
