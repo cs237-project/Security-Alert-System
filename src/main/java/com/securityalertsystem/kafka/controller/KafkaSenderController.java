@@ -34,8 +34,8 @@ public class KafkaSenderController {
 
 
     static String TYPE = "";
-    static double latitude;
-    static double longitude;
+    static double latitude = 0;
+    static double longitude = 0;
 
     private static String happenTime = new Date().toString();
     private static long sendTime;

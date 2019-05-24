@@ -5,10 +5,8 @@ import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static java.lang.Math.sqrt;
 
@@ -105,9 +103,9 @@ public class MessageService {
                         Math.pow(longitude-client.getAddressy(),2));
             }
 
-            if(distance<=8){
+            if(distance<=15){
                 group1.add(client.getClientId());
-            }else if(distance>8 && distance<=12){
+            }else if(distance>15 && distance<=20){
                 group2.add(client.getClientId());
             }else{
                 group3.add(client.getClientId());

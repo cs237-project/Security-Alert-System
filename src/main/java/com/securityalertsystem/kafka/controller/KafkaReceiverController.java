@@ -6,6 +6,7 @@ import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.kafka.consumer.ConsumerGroup;
 import com.securityalertsystem.repository.ClientRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.jni.Time;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,10 @@ public class KafkaReceiverController {
             return "Please add clients";
         }
 
+        if(KafkaSenderController.latitude==0 && KafkaSenderController.longitude==0){
+            return "Please create message";
+        }
+
 
         List<Integer> high_client = new ArrayList<>(),mid_client=new ArrayList<>(),low_client= new ArrayList<>();
         messageService.calPriority(clients,high_client,mid_client,low_client,
@@ -49,6 +54,9 @@ public class KafkaReceiverController {
         consumerGroup1.execute();
         consumerGroup2.execute();
         consumerGroup3.execute();
+
+
+
         return "create queue succeed";
     }
 
