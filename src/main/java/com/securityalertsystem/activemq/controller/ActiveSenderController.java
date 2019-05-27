@@ -3,6 +3,7 @@ package com.securityalertsystem.activemq.controller;
 import com.securityalertsystem.Service.MessageService;
 import com.securityalertsystem.activemq.producer.ActiveAlertSender;
 import com.securityalertsystem.Service.MessageService.*;
+import com.securityalertsystem.common.Response;
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.repository.ClientRepository;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -37,13 +38,13 @@ public class ActiveSenderController {
     private static long sendTime;
 
     @RequestMapping("/send")
-    public String sendMsg(String msg) {
+    public Response sendMsg(String msg) {
         if(TYPE.equals("")){
-            return "There is no message. Please create one";
+            return Response.createByErrorMessage("There is no Message");
         }
         List<Client> clients = clientRepository.findAll();
         if(clients.size()==0){
-            return "Please add clients";
+            return Response.createByErrorMessage("Need get clients information. Please input url \"/getClients\"");
         }
         List<Integer> group1=new ArrayList<>(),group2 = new ArrayList<>(),group3 = new ArrayList<>();
         messageService.calPriority(clients,group1,group2,group3,latitude,longitude,TYPE);
@@ -58,15 +59,15 @@ public class ActiveSenderController {
         for(int i=0;i<len3;i++){
             messageService.sendAlertFaraway(TYPE,happenTime,alertSender,sendTime);
         }
-        return "msg发送成功";
+        return Response.createBySuccessMessage("Message Sent Successfully");
     }
 
     @RequestMapping(value="/create/{type}")
-    public String createAlerts(@PathVariable(name = "type") String type){
+    public Response createAlerts(@PathVariable(name = "type") String type){
         TYPE = type;
         latitude = 45+Math.random()*30;
         longitude = 40+Math.random()*30;
-        return "Messages Created Successfully";
+        return Response.createBySuccessMessage("Messages Created Successfully");
     }
 
 

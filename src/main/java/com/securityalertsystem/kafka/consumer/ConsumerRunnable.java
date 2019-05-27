@@ -3,6 +3,7 @@ package com.securityalertsystem.kafka.consumer;
 import com.securityalertsystem.Service.MessageService;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.kafka.controller.KafkaReceiverController;
+import com.securityalertsystem.kafka.controller.KafkaSenderController;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -32,7 +33,7 @@ public class ConsumerRunnable implements Runnable{
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         this.consumer = new KafkaConsumer<>(props);
         System.out.println("creating consumer");
-         consumer.subscribe(Arrays.asList(topic));   // 本例使用分区副本自动分配策略
+         consumer.subscribe(Arrays.asList(topic));
    }
 
      @Override
@@ -40,14 +41,22 @@ public class ConsumerRunnable implements Runnable{
 
         while (true) {
             Duration duration = Duration.ofMillis(200);
-            ConsumerRecords<String, String> records = consumer.poll(duration);   // 本例使用200ms作为获取超时时间
+            ConsumerRecords<String, String> records = consumer.poll(duration);
             for (ConsumerRecord<String, String> record : records) {
-                // 这里面写处理消息的逻辑，本例中只是简单地打印消息
 //                System.out.println(Thread.currentThread().getName() + " consumed " + record.partition() +
 //                         "th message with offset: " + record.offset());
 //                receiverController.receivedMessages.add(messageService.transferMessage(0,
 //                        0,record.value()));
-                KafkaReceiverController.receivedMessages.add(messageService.transferMessage(record.topic(),record.value()));
+                String topic = record.topic();
+                AlertMessage message = messageService.transferMessage(topic,record.value());
+                KafkaReceiverController.receivedMessages.add(message);
+                int priority = Integer.valueOf(topic.substring(record.topic().length()-1));
+                if(!KafkaReceiverController.averageTime.containsKey(priority)){
+                    KafkaReceiverController.averageTime.put(priority,message.getReceivedTime());
+                }else{
+                    long prev = KafkaReceiverController.averageTime.get(priority);
+                    KafkaReceiverController.averageTime.put(priority,prev+message.getReceivedTime());
+                }
             }
          }
     }

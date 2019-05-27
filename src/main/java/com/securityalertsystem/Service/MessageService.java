@@ -52,19 +52,18 @@ public class MessageService {
         }
     }
 
-    public String transferMessage(int consumer, int priority, AlertMessage message){
-        System.err.println("----------received message-----------");
-        System.err.println("message ID: "+message.getMessageId());
-        message.setReceivedTime(System.currentTimeMillis()-message.getReceivedTime());
-        String result = "<p>"+consumer+" "+"priority="+priority+" "+
-                "MessageId: "+message.getMessageId()+" "+
-                "Location: "+message.getLocation()+" "+
-                "Emergency Type: "+message.getType()+" "+
-                "Happen Time: "+message.getHappenTime()+" " +
-                "Time gap of receiving message: "+message.getReceivedTime()+"</p>";
-        return result;
-    }
-    public String transferMessage(String topic,String message){
+//    public String transferMessage(int consumer, int priority, AlertMessage message){
+//        System.err.println("----------received message-----------");
+//        System.err.println("message ID: "+message.getMessageId());
+//        message.setReceivedTime(System.currentTimeMillis()-message.getReceivedTime());
+//        String result = consumer+" "+"priority="+priority+" "+
+//                "MessageId: "+message.getMessageId()+" "+
+//                "Location: "+message.getLocation()+" "+
+//                "Emergency Type: "+message.getType()+" "+
+//                "Happen Time: "+message.getHappenTime()+" ";
+//        return result;
+//    }
+    public AlertMessage transferMessage(String topic,String message){
         //{"messageId":"1558071957842$cabcf621-1a58-4346-bacf-56292f2cc214","type":"flooding","location":"3-10 miles away","happenTime":"Thu May 16 22:45:33 PDT 2019","receivedTime":1558071957842}
         System.err.println("----------received message-----------");
         long curTime = System.currentTimeMillis();
@@ -79,12 +78,13 @@ public class MessageService {
         System.err.println(topic);
         long gap = curTime-Long.valueOf(map.get("\"receivedTime\""));
         map.put("\"receivedTime\"",String.valueOf(gap));
-        String result = "<p>"+" "+topic+" "+
-                "MessageId: "+map.get("\"messageId\"")+" "+
-                "Location: "+map.get("\"location\"")+" "+
-                "Emergency Type: "+map.get("\"type\"")+" "+
-                "Happen Time: "+map.get("\"happenTime\"")+" " +
-                "Time gap of receiving message: "+map.get("\"receivedTime\"")+"</p>";
+        AlertMessage result = new AlertMessage();
+        result.setType(map.get("\"type\""));
+        result.setMessageId(map.get("\"messageId\""));
+        result.setLocation(map.get("\"location\""));
+        result.setHappenTime(map.get("\"happenTime\""));
+        result.setReceivedTime(Long.valueOf(map.get("\"receivedTime\"")));
+
         return result;
     }
 

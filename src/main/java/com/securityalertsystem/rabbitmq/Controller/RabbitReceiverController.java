@@ -6,6 +6,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import com.securityalertsystem.Service.MessageService;
+import com.securityalertsystem.common.Response;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.repository.ClientRepository;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.securityalertsystem.rabbitmq.Controller.RabbitSenderController.TYPE;
 import static com.securityalertsystem.rabbitmq.Controller.RabbitSenderController.latitude;
@@ -33,11 +36,12 @@ public class RabbitReceiverController {
     @Autowired
     MessageService messageService;
 
-
-    private List<String> receivedMessages = new ArrayList<>();
+    private Map<Integer,Long> averageTime = new HashMap<>();
+    private List<AlertMessage> receivedMessages = new ArrayList<>();
     private List<Integer> high_client = new ArrayList<>();
     private List<Integer> mid_client = new ArrayList<>();
     private List<Integer> low_client = new ArrayList<>();
+    private  int[] size_of_queue = new int[3];
 
 
     private void onAlertMessage(String exchangeName,int clientId,int priority) throws Exception{
@@ -51,9 +55,15 @@ public class RabbitReceiverController {
         channel.queueBind(queueName,exchangeName,"");
 
         DeliverCallback deliverCallback = (consumerTag, delivery)->{
-            AlertMessage message =  SerializationUtils.deserialize(delivery.getBody());
-
-            receivedMessages.add(messageService.transferMessage(clientId,priority,message));
+            AlertMessage message = SerializationUtils.deserialize(delivery.getBody());
+            long timegap = System.currentTimeMillis()-message.getReceivedTime();
+            if(!averageTime.containsKey(priority)){
+                averageTime.put(priority,timegap);
+            }else{
+                long prev = averageTime.get(priority);
+                averageTime.put(priority,prev+timegap);
+            }
+            receivedMessages.add(message);
         };
         channel.basicConsume(queueName,true,deliverCallback,consumerTag->{});
 
@@ -61,16 +71,19 @@ public class RabbitReceiverController {
 
 
     @RequestMapping("/createQueue")
-    public String createQueue(){
+    public Response createQueue(){
         List<Client> clients = clientRepository.findAll();
         if(clients.size()==0){
-            return "Need get clients information. Please input url \"/getClients\"";
+            return Response.createByErrorMessage("Need get clients information. Please input url \"/getClients\"");
         }
         if(TYPE.equals("")){
-            return "There is no Message";
+            return Response.createByErrorMessage("There is no Message");
         }
         messageService.calPriority(clients,high_client,mid_client,low_client,
                latitude, longitude, TYPE);
+        size_of_queue[0] = high_client.size();
+        size_of_queue[1] = mid_client.size();
+        size_of_queue[2] = low_client.size();
         for(int id:high_client){
             try {
                 onAlertMessage("alert-exchange0",id,0);
@@ -92,11 +105,11 @@ public class RabbitReceiverController {
                 e.printStackTrace();
             }
         }
-        return "Queue Created!";
+        return Response.createBySuccessMessage("Create Queue Succeed");
     }
 
     @RequestMapping("/getMsg")
-    public List<String> getMsg(){
+    public Response getMsg(){
 //        StringBuilder sb = new StringBuilder();
 //
 //        if(receivedMessages.size()>0){
@@ -105,6 +118,21 @@ public class RabbitReceiverController {
 //            }
 //        }
 //        return sb.toString();
-        return receivedMessages;
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no message received");
+        }
+        return Response.createBySuccess("Get messages successfully",receivedMessages);
     }
+
+    @RequestMapping("/getResult")
+    public Response getResult(){
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no result");
+        }
+        for(int p:averageTime.keySet()){
+            averageTime.put(p,averageTime.get(p)/size_of_queue[p]);
+        }
+        return Response.createBySuccess("Get test result successfully",averageTime);
+    }
+
 }

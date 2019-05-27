@@ -78,11 +78,11 @@ public class KafkaSenderController {
     }
 
     @RequestMapping(value="/create/{type}")
-    public String createAlerts(@PathVariable(name = "type") String type){
+    public Response createAlerts(@PathVariable(name = "type") String type){
         TYPE = type;
         latitude = 45+Math.random()*30;
         longitude = 40+Math.random()*30;
-        return "Messages Created Successfully";
+        return Response.createBySuccessMessage("Messages Created Successfully");
     }
 
 }
