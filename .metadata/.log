@@ -1,0 +1,13 @@
+!SESSION 2019-05-23 20:22:05.792 -----------------------------------------------
+eclipse.buildId=4.10.0.I20181206-0815
+java.version=11
+java.vendor=Oracle Corporation
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=zh_US_#Hans
+Framework arguments:  -product org.eclipse.epp.package.jee.product -keyring /Users/lifuyao/.eclipse_keyring
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.jee.product -keyring /Users/lifuyao/.eclipse_keyring
+
+!ENTRY org.eclipse.core.net 1 0 2019-05-23 20:22:35.282
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.jface.text 2 0 2019-05-23 20:22:37.355
+!MESSAGE Duplicate template id: 'org.eclipse.wst.xslt.templates.xpath.boolean'
