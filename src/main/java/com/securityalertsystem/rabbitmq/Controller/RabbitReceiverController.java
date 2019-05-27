@@ -96,14 +96,15 @@ public class RabbitReceiverController {
     }
 
     @RequestMapping("/getMsg")
-    public String getMsg(){
-        StringBuilder sb = new StringBuilder();
-
-        if(receivedMessages.size()>0){
-            for(String receivedMessage:receivedMessages){
-                sb.append(receivedMessage);
-            }
-        }
-        return sb.toString();
+    public List<String> getMsg(){
+//        StringBuilder sb = new StringBuilder();
+//
+//        if(receivedMessages.size()>0){
+//            for(String receivedMessage:receivedMessages){
+//                sb.append(receivedMessage);
+//            }
+//        }
+//        return sb.toString();
+        return receivedMessages;
     }
 }
