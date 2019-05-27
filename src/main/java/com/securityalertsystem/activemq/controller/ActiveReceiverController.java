@@ -14,8 +14,9 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 @RestController
@@ -30,11 +31,13 @@ public class ActiveReceiverController {
     @Autowired
     MessageService messageService;
 
+    private Map<Integer,Long> averageTime = new HashMap<>();
 
-    private List<String> receivedMessages = new ArrayList<>();
+    private List<AlertMessage> receivedMessages = new ArrayList<>();
     private List<Integer> high_client = new ArrayList<>();
     private List<Integer> mid_client = new ArrayList<>();
     private List<Integer> low_client = new ArrayList<>();
+    private  int[] size_of_queue = new int[3];
 
         @RequestMapping("/createQueue")
         public Response createConsumer(String queueName) throws Exception{
@@ -48,6 +51,9 @@ public class ActiveReceiverController {
             }
             messageService.calPriority(clients,high_client,mid_client,low_client,
                     ActiveSenderController.latitude, ActiveSenderController.longitude, ActiveSenderController.TYPE);
+            size_of_queue[0] = high_client.size();
+            size_of_queue[1] = mid_client.size();
+            size_of_queue[2] = low_client.size();
             for(int id:high_client){
                 try {
                     onAlertMessage(id,0);
@@ -96,7 +102,14 @@ public class ActiveReceiverController {
                 ActiveMQObjectMessage objectMessage = (ActiveMQObjectMessage) message;
                 try{
                     AlertMessage alertMessage = (AlertMessage)objectMessage.getObject();
-                    receivedMessages.add(messageService.transferMessage(clientId,priority,alertMessage));
+                    long timegap = System.currentTimeMillis()-alertMessage.getReceivedTime();
+                    if(!averageTime.containsKey(priority)){
+                        averageTime.put(priority,timegap);
+                    }else{
+                        long prev = averageTime.get(priority);
+                        averageTime.put(priority,prev+timegap);
+                    }
+                    receivedMessages.add(alertMessage);
                 } catch (JMSException e){
                     e.printStackTrace();
                 }
@@ -114,11 +127,20 @@ public class ActiveReceiverController {
 //                sb.append(receivedMessage);
 //            }
 //        }
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no message received");
+        }
         return Response.createBySuccess("Get messages successfully",receivedMessages);
     }
     @RequestMapping("/getResult")
     public Response getResult(){
-
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no result");
+        }
+        for(int p:averageTime.keySet()){
+            averageTime.put(p,averageTime.get(p)/size_of_queue[p]);
+        }
+        return Response.createBySuccess("Get test result successfully",averageTime);
     }
 
 }

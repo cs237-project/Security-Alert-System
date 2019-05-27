@@ -2,6 +2,8 @@ package com.securityalertsystem.kafka.controller;
 
 
 import com.securityalertsystem.Service.MessageService;
+import com.securityalertsystem.common.Response;
+import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.kafka.consumer.ConsumerGroup;
 import com.securityalertsystem.repository.ClientRepository;
@@ -25,25 +27,32 @@ public class KafkaReceiverController {
     @Autowired
     MessageService messageService;
 
-    public static List<String> receivedMessages = new ArrayList<>();
+    public static Map<Integer,Long> averageTime = new HashMap<>();
+    public static List<AlertMessage> receivedMessages = new ArrayList<>();
+    private int[] size_of_queue = new int[3];
+
+
 
 
     @RequestMapping("/createQueue")
-    public String listener() {
+    public Response listener() {
         List<Client> clients = clientRepository.findAll();
 
         if(clients.size()==0){
-            return "Please add clients";
+            return Response.createByErrorMessage("Need get clients information. Please input url \"/getClients\"");
         }
 
         if(KafkaSenderController.latitude==0 && KafkaSenderController.longitude==0){
-            return "Please create message";
+            return Response.createByErrorMessage("There is no Message");
         }
 
 
         List<Integer> high_client = new ArrayList<>(),mid_client=new ArrayList<>(),low_client= new ArrayList<>();
         messageService.calPriority(clients,high_client,mid_client,low_client,
                 KafkaSenderController.latitude, KafkaSenderController.longitude, KafkaSenderController.TYPE);
+        size_of_queue[0] = high_client.size();
+        size_of_queue[1] = mid_client.size();
+        size_of_queue[2] = low_client.size();
 
         String brokerlist = "localhost:9092";
         ConsumerGroup consumerGroup1 = new ConsumerGroup(high_client.size(),0,"topic1",brokerlist);
@@ -57,21 +66,34 @@ public class KafkaReceiverController {
 
 
 
-        return "create queue succeed";
+        return Response.createBySuccessMessage("Create Queue Succeed");
     }
 
     @RequestMapping("/getMsg")
-    public String getMsg(){
-        StringBuilder sb = new StringBuilder();
-
-        if(receivedMessages.size()>0){
-            for(String receivedMessage:receivedMessages){
-                sb.append(receivedMessage);
-            }
+    public Response getMsg(){
+//        StringBuilder sb = new StringBuilder();
+//
+//        if(receivedMessages.size()>0){
+//            for(String receivedMessage:receivedMessages){
+//                sb.append(receivedMessage);
+//            }
+//        }
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no message received");
         }
-        return sb.toString();
+        return Response.createBySuccess("Get messages successfully",receivedMessages);
     }
 
+    @RequestMapping("/getResult")
+    public Response getResult(){
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no result");
+        }
+        for(int p:averageTime.keySet()){
+            averageTime.put(p,averageTime.get(p)/size_of_queue[p]);
+        }
+        return Response.createBySuccess("Get test result successfully",averageTime);
+    }
 
 }
 
