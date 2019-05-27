@@ -1,6 +1,7 @@
 package com.securityalertsystem.activemq.controller;
 
 import com.securityalertsystem.Service.MessageService;
+import com.securityalertsystem.common.Response;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.repository.ClientRepository;
@@ -36,14 +37,14 @@ public class ActiveReceiverController {
     private List<Integer> low_client = new ArrayList<>();
 
         @RequestMapping("/createQueue")
-        public String createConsumer(String queueName) throws Exception{
+        public Response createConsumer(String queueName) throws Exception{
 
             List<Client> clients = clientRepository.findAll();
             if(clients.size()==0){
-                return "Need get clients information. Please input url \"/getClients\"";
+                return Response.createByErrorMessage("Need get clients information. Please input url \"/getClients\"");
             }
             if(ActiveSenderController.TYPE.equals("")){
-                return "There is no Message";
+                return Response.createByErrorMessage("There is no Message");
             }
             messageService.calPriority(clients,high_client,mid_client,low_client,
                     ActiveSenderController.latitude, ActiveSenderController.longitude, ActiveSenderController.TYPE);
@@ -68,7 +69,7 @@ public class ActiveReceiverController {
                     e.printStackTrace();
                 }
             }
-            return "Create Queue Succeed";
+            return Response.createBySuccessMessage("Create Queue Succeed");
         }
 
 
@@ -105,15 +106,19 @@ public class ActiveReceiverController {
     }
 
     @RequestMapping("/getMsg")
-    public String getMsg(){
-            StringBuilder sb = new StringBuilder();
+    public Response getMsg(){
+//            StringBuilder sb = new StringBuilder();
+//
+//        if(receivedMessages.size()>0){
+//            for(String receivedMessage:receivedMessages){
+//                sb.append(receivedMessage);
+//            }
+//        }
+        return Response.createBySuccess("Get messages successfully",receivedMessages);
+    }
+    @RequestMapping("/getResult")
+    public Response getResult(){
 
-        if(receivedMessages.size()>0){
-            for(String receivedMessage:receivedMessages){
-                sb.append(receivedMessage);
-            }
-        }
-        return sb.toString();
     }
 
 }

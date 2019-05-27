@@ -47,12 +47,12 @@ public class KafkaSenderController {
     @RequestMapping(value = "/send", produces = {"application/json"})
     public Response sendKafka() {
         if(TYPE.equals("")){
-            return new Response(ErrorCode.EXCEPTION,"Please create message");
+            return Response.createByErrorMessage("Please create message");
         }
 
         List<Client> clients = clientRepository.findAll();
         if(clients.size()==0){
-            return new Response(ErrorCode.EXCEPTION,"Please add clients");
+            return Response.createByErrorMessage("Please add clients");
         }
         List<Integer> group1=new ArrayList<>(),group2 = new ArrayList<>(),group3 = new ArrayList<>();
         messageService.calPriority(clients,group1,group2,group3,latitude,longitude,TYPE);
@@ -70,9 +70,9 @@ public class KafkaSenderController {
                 messageService.sendAlertFaraway(TYPE, happenTime, simpleProducer, sendTime);
             }
             KafkaReceiverController.receivedMessages = new ArrayList<>();
-            return new Response(ErrorCode.SUCCESS, "send kafka succeed");
+            return Response.createBySuccessMessage("send kafka succeed");
         }catch (Exception e){
-            return new Response(ErrorCode.EXCEPTION, "send kafka fail");
+            return Response.createByErrorMessage("send kafka fail");
         }
 
     }
