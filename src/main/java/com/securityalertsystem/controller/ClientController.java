@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -23,13 +24,14 @@ public class ClientController {
         List<Client> clients = clientRepository.findAll();
         String result = "";
         for(Client client:clients){
-            result+="<p>Client"+client.getClientId()+"</p>";
+            result+="ClientId:"+client.getClientId()+ "    location X: " + client.getLocationx() + "    location Y: " + client.getLocationy()
+            + "    address X: " + client.getAddressx() + "    address Y: " + client.getAddressy() + "\n";
         }
         return result;
     }
 
     @RequestMapping(value = "/addClients/{number}")
-    public void addCli(@PathVariable("number") int num){
+    public String addCli(@PathVariable("number") int num){
         for(int i=0;i<num;i++){
             Client cli=new Client();
 
@@ -41,6 +43,7 @@ public class ClientController {
 
             clientRepository.save(cli);
         }
+        return "successfully added " + num + " clients";
     }
 
 }

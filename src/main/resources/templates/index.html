@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <title>Security Alert System</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        $(document).ready(function () {
+            $("#addClient").click(function () {
+                let clientNumber = $("#clientNumber").val();
+                console.log("client number:"+ clientNumber);
+                let addClientUrl = "/client/addClients/" + clientNumber;
+                console.log("addClientUrl:"+ addClientUrl);
+
+
+                $.ajax({
+                    type: "GET",
+                    url: addClientUrl,
+                    dataType: "text",
+                    success: function (response) {
+                        $("#add_client_message").text(response);
+                        console.log("succesfully added clients");
+                    },
+                    error: function () {
+                        $("#add_client_message").text("something went wrong when add clients");
+                        console.log("something went wrong when add clients");
+                    }
+                });
+
+            });
+        });
+
+        function getClients(getClientsUrl) {
+            $.ajax({
+                type: "GET",
+                url: getClientsUrl,
+                dataType: "text",
+                success: function (response) {
+                    $("#get_clients").text(response);
+                    console.log(response);
+                },
+                error: function () {
+                    $("#get_clients").text("something went wrong when trying to get clients");
+                    console.log("something went wrong when trying to get clients");
+                }
+            });
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+<div class="page-header">
+    <h1>Security Alert System Message Queue Demo</h1>
+</div>
+<p>
+    <button type="button" class="btn btn-default btn-lg btn-block" onclick="window.location.href='rabbitmq'">RabbitMQ example</button>
+</p>
+<p>
+    <button type="button" class="btn btn-default btn-lg btn-block" onclick="window.location.href='activemq'">ActiveMQ example</button>
+</p>
+<p>
+    <button type="button" class="btn btn-default btn-lg btn-block" onclick="window.location.href='kafka'">kakfa example</button>
+</p>
+
+<div class="page-header">
+    <h2>General configuration</h2>
+    <div>
+        <h3>Add Clients</h3>
+        <form class="form-container" method="get" onsubmit="return false" role="form">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="clientNumber" placeholder="client number">
+                        <span class="input-group-btn">
+						<button class="btn btn-default" type="button" id="addClient">
+							Add Clients
+						</button>
+					</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div id="add_client_message"></div>
+    </div>
+
+    <div>
+        <h3>Get Current Clients</h3>
+        <button class="btn btn-default" id="getClients" value="submit" onclick="getClients('/client/getClients')">
+            get Clients
+        </button>
+        <div id="get_clients" style="white-space:pre"></div>
+    </div>
+</div>
+</body>
+</html>
