@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 @Slf4j
@@ -41,8 +42,6 @@ public class KafkaSenderController {
     private static long sendTime;
 
 
-    private Gson gson = new Gson();
-
 
     @RequestMapping(value = "/send", produces = {"application/json"})
     public Response sendKafka() {
@@ -54,10 +53,17 @@ public class KafkaSenderController {
         if(clients.size()==0){
             return Response.createByErrorMessage("Please add clients");
         }
+        KafkaReceiverController.receivedMessages= new ArrayList<>();
+        KafkaReceiverController.averageTime = new ConcurrentHashMap<>();
+
         List<Integer> group1=new ArrayList<>(),group2 = new ArrayList<>(),group3 = new ArrayList<>();
         messageService.calPriority(clients,group1,group2,group3,latitude,longitude,TYPE);
         int len1 = group1.size(),len2 = group2.size(),len3=group3.size();
         sendTime = System.currentTimeMillis();
+
+        System.out.println("size of send:"+len1);
+        System.out.println("size of send:"+len2);
+        System.out.println("size of send:"+len3);
 
         try {
             for (int i = 0; i < len1; i++) {
@@ -69,7 +75,6 @@ public class KafkaSenderController {
             for (int i = 0; i < len3; i++) {
                 messageService.sendAlertFaraway(TYPE, happenTime, simpleProducer, sendTime);
             }
-            KafkaReceiverController.receivedMessages = new ArrayList<>();
             return Response.createBySuccessMessage("send kafka succeed");
         }catch (Exception e){
             return Response.createByErrorMessage("send kafka fail");
@@ -82,6 +87,9 @@ public class KafkaSenderController {
         TYPE = type;
         latitude = 45+Math.random()*30;
         longitude = 40+Math.random()*30;
+        KafkaReceiverController.receivedMessages= new ArrayList<>();
+        KafkaReceiverController.averageTime = new ConcurrentHashMap<>();
+        KafkaReceiverController.consumerCount=0;
         return Response.createBySuccessMessage("Messages Created Successfully");
     }
 

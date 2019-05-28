@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -27,11 +28,11 @@ public class KafkaReceiverController {
     @Autowired
     MessageService messageService;
 
-    public static Map<Integer,Long> averageTime = new HashMap<>();
+    public static Map<Integer,Long> averageTime = new ConcurrentHashMap<>();
     public static List<AlertMessage> receivedMessages = new ArrayList<>();
     private int[] size_of_queue = new int[3];
 
-
+    public static int consumerCount = 0;
 
 
     @RequestMapping("/createQueue")
@@ -54,6 +55,10 @@ public class KafkaReceiverController {
         size_of_queue[1] = mid_client.size();
         size_of_queue[2] = low_client.size();
 
+        System.out.println("size of queues:"+size_of_queue[0]);
+        System.out.println("size of queues:"+size_of_queue[1]);
+        System.out.println("size of queues:"+size_of_queue[2]);
+
         String brokerlist = "localhost:9092";
         ConsumerGroup consumerGroup1 = new ConsumerGroup(high_client.size(),0,"topic1",brokerlist);
         ConsumerGroup consumerGroup2 = new ConsumerGroup(mid_client.size(),high_client.size(),"topic2",brokerlist);
@@ -61,7 +66,9 @@ public class KafkaReceiverController {
                 ,"topic3",brokerlist);
 
         consumerGroup1.execute();
+
         consumerGroup2.execute();
+
         consumerGroup3.execute();
 
 
@@ -78,6 +85,7 @@ public class KafkaReceiverController {
 //                sb.append(receivedMessage);
 //            }
 //        }
+        System.out.println(consumerCount);
         if(receivedMessages.size()==0){
             return Response.createByErrorMessage("There is no message received");
         }
@@ -90,7 +98,7 @@ public class KafkaReceiverController {
             return Response.createByErrorMessage("There is no result");
         }
         for(int p:averageTime.keySet()){
-            averageTime.put(p,averageTime.get(p)/size_of_queue[p]);
+            averageTime.put(p,averageTime.get(p)/size_of_queue[p-1]);
         }
         return Response.createBySuccess("Get test result successfully",averageTime);
     }
