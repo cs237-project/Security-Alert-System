@@ -72,6 +72,7 @@ $(document).ready(function () {
             dataType: "json",
             success: function (response) {
                 $("#getRabbitMQMessage").text(response.message);
+                document.getElementById("message_table").style.display='block';
                 createMessageTable(response);
                 console.log("succesfully get messages for rabbitMQ");
             },
@@ -91,6 +92,7 @@ $(document).ready(function () {
             dataType: "json",
             success: function (response) {
                 $("#getRabbitMQResult").text(response.message);
+                document.getElementById("result_table").style.display='block';
                 createResultTable(response);
                 console.log("succesfully get results for rabbitMQ");
             },
