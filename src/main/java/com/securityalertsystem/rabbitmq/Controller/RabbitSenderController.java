@@ -37,9 +37,9 @@ public class RabbitSenderController {
     @RequestMapping(value="/send")
     public Response sendAlerts(){
         sendTime = System.currentTimeMillis();
-        messageService.sendAlertNearby(TYPE,happenTime,alertSender,sendTime);
-        messageService.sendAlertMid(TYPE,happenTime,alertSender,sendTime);
-        messageService.sendAlertFaraway(TYPE,happenTime,alertSender,sendTime);
+        messageService.sendAlertNearbyforJson(TYPE,happenTime,alertSender,sendTime);
+        messageService.sendAlertMidforJson(TYPE,happenTime,alertSender,sendTime);
+        messageService.sendAlertFarawayforJson(TYPE,happenTime,alertSender,sendTime);
         return Response.createBySuccessMessage("Messages Sent Successfully");
     }
     @RequestMapping(value="/create/{type}")
