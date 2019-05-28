@@ -126,7 +126,7 @@ function createMessageTable(response) {
 function createResultTable(response) {
     console.log("handleResult: populating result table from resultData");
     let resultTable = jQuery("#result_table_body");
-    let result=response.data;
+    let result= response.data;
 
     let rowHTML = "";
     rowHTML += "<tr>";
