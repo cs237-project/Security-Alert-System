@@ -33,6 +33,11 @@ public class SimpleProducer implements AlertSender {
     }
 
     @Override
+    public void send1(String message) {
+
+    }
+
+    @Override
     public void send2(AlertMessage message) {
         ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
                 "topic2",
@@ -42,11 +47,21 @@ public class SimpleProducer implements AlertSender {
     }
 
     @Override
+    public void send2(String message) {
+
+    }
+
+    @Override
     public void send3(AlertMessage message) {
         ProducerRecord<String, AlertMessage> record = new ProducerRecord<>(
                 "topic3",
                 message);
 
         kafkaTemplate.send(record);
+    }
+
+    @Override
+    public void send3(String message) {
+
     }
 }

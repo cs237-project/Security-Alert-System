@@ -26,28 +26,32 @@ public class ConsumerRunnable implements Runnable{
          Properties props = new Properties();
         props.put("bootstrap.servers", brokerList);
         props.put("group.id", groupId);
-        props.put("enable.auto.commit", "true");        //本例使用自动提交位移
+        props.put("enable.auto.commit", "true");
         props.put("auto.commit.interval.ms", "1000");
         props.put("session.timeout.ms", "30000");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         this.consumer = new KafkaConsumer<>(props);
-        System.out.println("creating consumer");
-         consumer.subscribe(Arrays.asList(topic));
+        //System.out.println("creating consumer");
+        consumer.subscribe(Arrays.asList(topic));
    }
 
      @Override
      public void run() {
+        boolean flag = false;
 
+        KafkaReceiverController.consumerCount++;
         while (true) {
-            Duration duration = Duration.ofMillis(200);
+            Duration duration = Duration.ofMillis(1000);
             ConsumerRecords<String, String> records = consumer.poll(duration);
+            //System.out.println(records.count());
             for (ConsumerRecord<String, String> record : records) {
 //                System.out.println(Thread.currentThread().getName() + " consumed " + record.partition() +
 //                         "th message with offset: " + record.offset());
 //                receiverController.receivedMessages.add(messageService.transferMessage(0,
 //                        0,record.value()));
                 String topic = record.topic();
+                System.out.println("Topic:"+topic);
                 AlertMessage message = messageService.transferMessage(topic,record.value());
                 KafkaReceiverController.receivedMessages.add(message);
                 int priority = Integer.valueOf(topic.substring(record.topic().length()-1));
@@ -57,6 +61,13 @@ public class ConsumerRunnable implements Runnable{
                     long prev = KafkaReceiverController.averageTime.get(priority);
                     KafkaReceiverController.averageTime.put(priority,prev+message.getReceivedTime());
                 }
+                flag = true;
+                break;
+            }
+            if(flag){
+                consumer.unsubscribe();
+                consumer.close();
+                break;
             }
          }
     }

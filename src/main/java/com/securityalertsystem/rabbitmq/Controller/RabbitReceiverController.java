@@ -1,6 +1,7 @@
 package com.securityalertsystem.rabbitmq.Controller;
 
 
+import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -52,18 +53,21 @@ public class RabbitReceiverController {
         String queueName = "queue"+clientId;
         channel.exchangeDeclare(exchangeName,"fanout",true);
         channel.queueDeclare(queueName, true, false, true, null); //durable, automatically deleted
-        channel.queueBind(queueName,exchangeName,"");
+        channel.queueBind(queueName,exchangeName,"alert.abc");
 
         DeliverCallback deliverCallback = (consumerTag, delivery)->{
-            AlertMessage message = SerializationUtils.deserialize(delivery.getBody());
-            long timegap = System.currentTimeMillis()-message.getReceivedTime();
+            String message =  new String(delivery.getBody(), "UTF-8");
+
+            Gson gson = new Gson();
+            AlertMessage alertMessage = gson.fromJson(message,AlertMessage.class);
+            long timegap = System.currentTimeMillis()-alertMessage.getReceivedTime();
             if(!averageTime.containsKey(priority)){
                 averageTime.put(priority,timegap);
             }else{
                 long prev = averageTime.get(priority);
                 averageTime.put(priority,prev+timegap);
             }
-            receivedMessages.add(message);
+            receivedMessages.add(alertMessage);
         };
         channel.basicConsume(queueName,true,deliverCallback,consumerTag->{});
 
