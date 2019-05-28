@@ -55,9 +55,6 @@ public class KafkaReceiverController {
         size_of_queue[1] = mid_client.size();
         size_of_queue[2] = low_client.size();
 
-        System.out.println("size of queues:"+size_of_queue[0]);
-        System.out.println("size of queues:"+size_of_queue[1]);
-        System.out.println("size of queues:"+size_of_queue[2]);
 
         String brokerlist = "localhost:9092";
         ConsumerGroup consumerGroup1 = new ConsumerGroup(high_client.size(),0,"topic1",brokerlist);
