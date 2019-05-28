@@ -95,7 +95,7 @@ public class KafkaReceiverController {
             return Response.createByErrorMessage("There is no result");
         }
         for(int p:averageTime.keySet()){
-            averageTime.put(p,averageTime.get(p)/size_of_queue[p-1]);
+            averageTime.put(p,averageTime.get(p)/size_of_queue[p]);
         }
         return Response.createBySuccess("Get test result successfully",averageTime);
     }
