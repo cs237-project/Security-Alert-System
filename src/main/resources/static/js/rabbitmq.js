@@ -132,15 +132,15 @@ function createResultTable(response) {
 
     let rowHTML = "";
     rowHTML += "<tr>";
-    rowHTML += "<th>" + "high priority" + "</th>";
+    rowHTML += "<th>" + "high priority average time (ms)" + "</th>";
     rowHTML += "<th>" + result["0"] + "</th>";
     rowHTML += "</tr>";
     rowHTML += "<tr>";
-    rowHTML += "<th>" + "medium priority" + "</th>";
+    rowHTML += "<th>" + "medium priority average time (ms)" + "</th>";
     rowHTML += "<th>" + result["1"] + "</th>";
     rowHTML += "</tr>";
     rowHTML += "<tr>";
-    rowHTML += "<th>" + "low priority" + "</th>";
+    rowHTML += "<th>" + "low priority average time (ms)" + "</th>";
     rowHTML += "<th>" + result["2"] + "</th>";
     rowHTML += "</tr>";
     resultTable.append(rowHTML);
