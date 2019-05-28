@@ -67,16 +67,34 @@
     <table id=message_table class="table table-striped">
         <thead>
         <tr>
-            <th>messageId</th>
-            <th>type</th>
-            <th>location</th>
-            <th>happenTime</th>
-            <th>receivedTime</th>
+            <th>MessageId</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Happen Time</th>
+            <th>Received Time</th>
         </tr>
         </thead>
 
         <tbody id=message_table_body></tbody>
 
+    </table>
+</div>
+
+<div>
+    <h2>5: Get Result</h2>
+    <button class="btn btn-default" type="button" id="getResult">
+        Get Result
+    </button>
+    <div id="getRabbitMQResult"></div>
+    <table id=result_table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Priority</th>
+            <th>Average Time(ms)</th>
+        </tr>
+        </thead>
+
+        <tbody id=result_table_body></tbody>
     </table>
 </div>
 

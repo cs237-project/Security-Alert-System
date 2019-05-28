@@ -83,6 +83,25 @@ $(document).ready(function () {
 
     });
 
+    $("#getResult").click(function () {
+
+        $.ajax({
+            type: "GET",
+            url: "/rabbitmq/messageReceiver/getResult",
+            dataType: "json",
+            success: function (response) {
+                $("#getRabbitMQResult").text(response.message);
+                createResultTable(response);
+                console.log("succesfully get results for rabbitMQ");
+            },
+            error: function () {
+                $("#createRabbitMQMessage").text("something went wrong when getting rabbitMQ results.");
+                console.log("something went wrong when getting rabbitMQ results.");
+            }
+        });
+
+    });
+
 });
 
 function createMessageTable(response) {
@@ -103,5 +122,29 @@ function createMessageTable(response) {
     }
     console.log("message table: ",messageTable);
 }
+
+function createResultTable(response) {
+    console.log("handleResult: populating result table from resultData");
+    let resultTable = jQuery("#result_table_body");
+    let result=response.data;
+
+    let rowHTML = "";
+    rowHTML += "<tr>";
+    rowHTML += "<th>" + "high priority" + "</th>";
+    rowHTML += "<th>" + result["0"] + "</th>";
+    rowHTML += "</tr>";
+    rowHTML += "<tr>";
+    rowHTML += "<th>" + "medium priority" + "</th>";
+    rowHTML += "<th>" + result["1"] + "</th>";
+    rowHTML += "</tr>";
+    rowHTML += "<tr>";
+    rowHTML += "<th>" + "low priority" + "</th>";
+    rowHTML += "<th>" + result["2"] + "</th>";
+    rowHTML += "</tr>";
+    resultTable.append(rowHTML);
+
+    console.log("result table: ",resultTable);
+}
+
 
 
