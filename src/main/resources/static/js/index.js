@@ -15,8 +15,8 @@ $(document).ready(function () {
                     console.log("succesfully added clients");
                 },
                 error: function () {
-                    $("#add_client_message").text("something went wrong when add clients");
-                    console.log("something went wrong when add clients");
+                    $("#add_client_message").text("something went wrong when adding clients");
+                    console.log("something went wrong when adding clients");
                 }
             });
 
