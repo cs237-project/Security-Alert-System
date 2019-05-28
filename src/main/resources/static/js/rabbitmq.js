@@ -53,11 +53,11 @@ $(document).ready(function () {
             url: "/rabbitmq/messageSender/send",
             dataType: "json",
             success: function (response) {
-                $("#createRabbitMQQueue").text(response.message);
+                $("#sendRabbitMQMesssage").text(response.message);
                 console.log("succesfully send message for rabbitMQ");
             },
             error: function () {
-                $("#createRabbitMQMessage").text("something went wrong when creating queues");
+                $("#sendRabbitMQMesssage").text("something went wrong when creating queues");
                 console.log("something went wrong when sending rabbitMQ messages.");
             }
         });
