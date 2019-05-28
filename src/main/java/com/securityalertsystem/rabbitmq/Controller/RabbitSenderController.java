@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -47,7 +49,8 @@ public class RabbitSenderController {
         TYPE = type;
         latitude = 45+Math.random()*30;
         longitude = 40+Math.random()*30;
-        return Response.createBySuccessMessage("Messages Created Successfully");
+        List<Double> location = Arrays.asList(latitude,longitude);
+        return Response.createBySuccess("Messages Created Successfully",location);
     }
 
 }

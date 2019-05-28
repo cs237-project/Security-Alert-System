@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,7 +86,8 @@ public class KafkaSenderController {
         KafkaReceiverController.receivedMessages= new ArrayList<>();
         KafkaReceiverController.averageTime = new ConcurrentHashMap<>();
         KafkaReceiverController.consumerCount=0;
-        return Response.createBySuccessMessage("Messages Created Successfully");
+        List<Double> location = Arrays.asList(latitude,longitude);
+        return Response.createBySuccess("Messages Created Successfully",location);
     }
 
 }

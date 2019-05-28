@@ -67,6 +67,7 @@ public class RabbitReceiverController {
                 long prev = averageTime.get(priority);
                 averageTime.put(priority,prev+timegap);
             }
+            alertMessage.setReceivedTime(timegap);
             receivedMessages.add(alertMessage);
         };
         channel.basicConsume(queueName,true,deliverCallback,consumerTag->{});

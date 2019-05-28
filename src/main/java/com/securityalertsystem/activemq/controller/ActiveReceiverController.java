@@ -109,6 +109,7 @@ public class ActiveReceiverController {
                         long prev = averageTime.get(priority);
                         averageTime.put(priority,prev+timegap);
                     }
+                    alertMessage.setReceivedTime(timegap);
                     receivedMessages.add(alertMessage);
                 } catch (JMSException e){
                     e.printStackTrace();
