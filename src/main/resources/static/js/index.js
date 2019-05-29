@@ -40,7 +40,7 @@ function getClientResult(getClientsUrl) {
 }
 
 function handleClientResponse(response) {
-    $("#get_clients").text(response.message);
+    $("#get_clients").text(response.message+". We have "+response.data.length+" clients now.");
     const ctx = document.getElementById("client_locations").getContext('2d');
     const data = response.data;
 
