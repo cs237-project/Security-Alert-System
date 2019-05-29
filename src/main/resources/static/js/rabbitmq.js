@@ -114,6 +114,7 @@ function showMessageGraph(response) {
     let high_array = [];
     let medium_array = [];
     let low_array = [];
+    let total_array = [];
 
     let data = response.data;
 
@@ -121,6 +122,7 @@ function showMessageGraph(response) {
 
     for (let i = 0; i < totalLen; i++) {
         let message = data[i];
+        total_array.push({id: message['messageId'], x: i, y: message['receivedTime']});
         if (message.location === "Within 3 miles"){
             high_array.push({id: message['messageId'], x: i, y: message['receivedTime']});
         } else if (message.location === "3-10 miles away") {
@@ -218,34 +220,6 @@ function showMessageGraph(response) {
                         }
                     }]
                 },
-                tooltips: {
-                    displayColors: false,
-                    callbacks: {
-                        title: function(tooltipItems, data) {
-                            let index = tooltipItems[0].index;
-                            let datasetIndex = tooltipItems[0].datasetIndex;
-                            let dataset = data.datasets[datasetIndex];
-                            let datasetItem = dataset.data[index];
-
-                            let message = response.data[datasetItem.id];
-                            return "MessageId: " + message.id;
-                        },
-                        label: function(tooltipItems, data) {
-                            let output = "";
-
-                            let index = tooltipItems.index;
-                            let datasetIndex = tooltipItems.datasetIndex;
-                            let dataset = data.datasets[datasetIndex];
-                            let datasetItem = dataset.data[index];
-
-                            let message = response.data[datasetItem.id];
-
-                            output += "location: " + message.location + "\n | \n";
-                            output += "Received Time: " + message.receivedTime;
-                            return output;
-                        }
-                    }
-                }
             }
         });
 }
