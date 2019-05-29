@@ -261,7 +261,7 @@ function showMessageGraph(response) {
 
                             let message = response.data[datasetItem.id];
 
-                            output += "location:" + message.location + "\n | \n";
+                            output += "location: " + message.location + "\n | \n";
                             output += "Received Time: " + message.receivedTime;
                             return output;
                         }
