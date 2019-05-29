@@ -77,8 +77,6 @@ $(document).ready(function () {
             dataType: "json",
             success: function (response) {
                 $("#getRabbitMQMessage").text(response.message);
-                // document.getElementById("message_table").style.display='block';
-                // createMessageTable(response);
                 showMessageGraph(response);
                 console.log("succesfully get messages for rabbitMQ");
             },
@@ -111,25 +109,6 @@ $(document).ready(function () {
     });
 
 });
-
-// function createMessageTable(response) {
-//     console.log("handleResult: populating message table from resultData");
-//     let messageTable = jQuery("#message_table_body");
-//     let result=response.data;
-//
-//     for (let i = 0; i < result.length; i++) {
-//         let rowHTML = "";
-//         rowHTML += "<tr>";
-//         rowHTML += "<th>" + result[i]["messageId"] + "</th>";
-//         rowHTML += "<th>" + result[i]["type"] + "</th>";
-//         rowHTML += "<th>" + result[i]["location"] + "</th>";
-//         rowHTML += "<th>" + result[i]["happenTime"] + "</th>";
-//         rowHTML += "<th>" + result[i]["receivedTime"] + "</th>";
-//         rowHTML += "</tr>";
-//         messageTable.append(rowHTML);
-//     }
-//     console.log("message table: ",messageTable);
-// }
 
 function showMessageGraph(response) {
     let high_array = [];
@@ -249,7 +228,7 @@ function showMessageGraph(response) {
                             let datasetItem = dataset.data[index];
 
                             let message = response.data[datasetItem.id];
-                            return "MessageId: " + message.messageId;
+                            return "MessageId: " + message.id;
                         },
                         label: function(tooltipItems, data) {
                             let output = "";
