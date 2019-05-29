@@ -8,6 +8,8 @@
     <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"></script>
     <script type="text/javascript" th:src="@{./js/rabbitmq.js}"></script>
     <link href="../static/css/general.css"
           th:href="@{/css/general.css}"
@@ -66,20 +68,13 @@
         Get Messages
     </button>
     <div id="getRabbitMQMessage"></div>
-    <table id=message_table class="table table-striped" style="display:none">
-        <thead>
-        <tr>
-            <th>MessageId</th>
-            <th>Type</th>
-            <th>Location</th>
-            <th>Happen Time</th>
-            <th>Received Time</th>
-        </tr>
-        </thead>
-
-        <tbody id=message_table_body></tbody>
-
-    </table>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12" style="white-space:pre">
+                <canvas id="message_graph" width="500" height="300"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div>
