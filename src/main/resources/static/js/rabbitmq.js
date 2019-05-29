@@ -201,7 +201,7 @@ function showMessageGraph(response) {
             options: {
                 title: {
                     display: true,
-                    text: type
+                    text: "Messages with Three Priorities",
                 },
                 scales: {
                     yAxes: [{
