@@ -60,6 +60,7 @@ function handleClientResponse(response) {
                 data: clientLocation,
                 label: 'client current location',
                 backgroundColor: 'rgba(255, 0, 0, 1)',
+                pointRadius: 20,
             },
                 {
                     data: clientAddress,

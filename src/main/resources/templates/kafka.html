@@ -8,5 +8,112 @@
 <div class="page-header">
     <h1>Kafka Message Queue Demo</h1>
 </div>
+</body><!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kafka demo</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"></script>
+    <script type="text/javascript" th:src="@{./js/kafka.js}"></script>
+    <link href="../static/css/general.css"
+          th:href="@{/css/general.css}"
+          rel="stylesheet" media="screen" />
+</head>
+<body>
+<div class="page-header">
+    <h1>Kafka Message Queue Demo</h1>
+</div>
+<div>
+    <h2>1: Create Message</h2>
+    <div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <select id="securityIssue" name="securityIssue" class="form-control select2" style="width:200px">
+                            <option>Please select</option>
+                            <option>Flooding</option>
+                            <option>Robbery</option>
+                            <option>Earthquake</option>
+                            <option>Sexual Assault</option>
+                            <option>Gun Shot</option>
+                            <option>Fire</option>
+                        </select>
+                        <span class="input-group-btn">
+						<button class="btn btn-default" type="button" id="createMessage">
+                            Create Message
+                        </button>
+					</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="createKafkaMessage"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12" style="white-space:pre">
+                <canvas id="emergency-location" width="500" height="300"></canvas>
+            </div>
+            <div id="description"></div>
+        </div>
+    </div>
+</div>
+<div>
+    <h2>2: Create Queue</h2>
+    <button class="btn btn-default" type="button" id="createQueue">
+        Create Queue
+    </button>
+</div>
+<div id="createKafkaQueue"></div>
+<div>
+    <h2>3: Send Messages</h2>
+    <button class="btn btn-default" type="button" id="send">
+        Send Messages
+    </button>
+</div>
+<div id="sendKafkaMQMesssage"></div>
+
+<div>
+    <h2>4: Get Messages</h2>
+    <button class="btn btn-default" type="button" id="getMessage">
+        Get Messages
+    </button>
+    <div id="getKafkaMQMessage"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12" style="white-space:pre">
+                <canvas id="message_graph" width="500" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <h2>5: Get Result</h2>
+    <button class="btn btn-default" type="button" id="getResult">
+        Get Result
+    </button>
+    <div id="getKafkaResult"></div>
+    <table id=result_table class="table table-striped" style="display:none">
+        <thead>
+        <tr>
+            <th>Priority</th>
+            <th>Average Time(ms)</th>
+        </tr>
+        </thead>
+
+        <tbody id=result_table_body></tbody>
+    </table>
+</div>
+
+
 </body>
+</html>
 </html>

@@ -5,10 +5,10 @@ $(document).ready(function () {
 
 
         if (emergencyType === "Please select") {
-            $("#createRabbitMQMessage").text("You need to input a valid emergency type.");
+            $("#createKafkaMessage").text("You need to input a valid emergency type.");
         } else {
             let clientUrl = "/client/getClients";
-            let messageUrl = "/rabbitmq/messageSender/create/"+emergencyType;
+            let messageUrl = "/kafka/messageSender/create/"+emergencyType;
             console.log(clientUrl);
             console.log(messageUrl);
             $.ajax({
@@ -16,8 +16,8 @@ $(document).ready(function () {
                 url: messageUrl,
                 dataType: "json",
                 success: function (response) {
-                    $("#createRabbitMQMessage").text(response.message+" The emergency happens at x: "+response.data[0]+
-                    " y: "+response.data[1]);
+                    $("#createKafkaMessage").text(response.message+" The emergency happens at x: "+response.data[0]+
+                        " y: "+response.data[1]);
                     let data = response.data;
                     // let data = response.data;
                     sessionStorage.setItem("latitude", data[0]);
@@ -27,7 +27,7 @@ $(document).ready(function () {
                     // console.log("longitude:" + data[1]);
                 },
                 error: function () {
-                    $("#createRabbitMQMessage").text("something went wrong when creating messages");
+                    $("#createKafkaMessage").text("something went wrong when creating messages");
                     console.log("something went wrong when creating messages");
                 }
             });
@@ -36,11 +36,11 @@ $(document).ready(function () {
                 url: clientUrl,
                 dataType: "json",
                 success: function (clientResponse) {
-                    $("#createRabbitMQMessage").text(clientResponse.message);
+                    $("#createKafkaMessage").text(clientResponse.message);
                     messageHandle(emergencyType,clientResponse.data);
                 },
                 error: function () {
-                    $("#createRabbitMQMessage").text("something went wrong when creating messages");
+                    $("#createKafkaMessage").text("something went wrong when creating messages");
                     console.log("something went wrong when creating messages");
                 }
             });
@@ -162,14 +162,14 @@ $(document).ready(function () {
 
         $.ajax({
             type: "GET",
-            url: "/rabbitmq/messageReceiver/createQueue",
+            url: "/kafka/messageReceiver/createQueue",
             dataType: "json",
             success: function (response) {
-                $("#createRabbitMQQueue").text(response.message);
+                $("#createKafkaQueue").text(response.message);
                 console.log("succesfully created queues");
             },
             error: function () {
-                $("#createRabbitMQMessage").text("something went wrong when creating queues");
+                $("#createKafkaMessage").text("something went wrong when creating queues");
                 console.log("something went wrong when creating queues");
             }
         });
@@ -180,15 +180,15 @@ $(document).ready(function () {
 
         $.ajax({
             type: "GET",
-            url: "/rabbitmq/messageSender/send",
+            url: "/kafka/messageSender/send",
             dataType: "json",
             success: function (response) {
-                $("#sendRabbitMQMesssage").text(response.message);
-                console.log("succesfully send message for rabbitMQ");
+                $("#sendKafkaMesssage").text(response.message);
+                console.log("succesfully send message for kafka");
             },
             error: function () {
-                $("#sendRabbitMQMesssage").text("something went wrong when creating queues");
-                console.log("something went wrong when sending rabbitMQ messages.");
+                $("#sendKafkaMesssage").text("something went wrong when creating queues");
+                console.log("something went wrong when sending kafka messages.");
             }
         });
 
@@ -198,16 +198,16 @@ $(document).ready(function () {
 
         $.ajax({
             type: "GET",
-            url: "/rabbitmq/messageReceiver/getMsg",
+            url: "/kafka/messageReceiver/getMsg",
             dataType: "json",
             success: function (response) {
-                $("#getRabbitMQMessage").text(response.message);
+                $("#getKafkaMessage").text(response.message);
                 showMessageGraph(response);
-                console.log("succesfully get messages for rabbitMQ");
+                console.log("succesfully get messages for kafka");
             },
             error: function () {
-                $("#createRabbitMQMessage").text("something went wrong when getting rabbitMQ messages.");
-                console.log("something went wrong when getting rabbitMQ messages.");
+                $("#createKafkaMessage").text("something went wrong when getting kafka messages.");
+                console.log("something went wrong when getting kafka messages.");
             }
         });
 
@@ -217,17 +217,17 @@ $(document).ready(function () {
 
         $.ajax({
             type: "GET",
-            url: "/rabbitmq/messageReceiver/getResult",
+            url: "/kafka/messageReceiver/getResult",
             dataType: "json",
             success: function (response) {
-                $("#getRabbitMQResult").text(response.message);
+                $("#getKafkaResult").text(response.message);
                 document.getElementById("result_table").style.display='block';
                 createResultTable(response);
-                console.log("succesfully get results for rabbitMQ");
+                console.log("succesfully get results for kafka");
             },
             error: function () {
-                $("#createRabbitMQMessage").text("something went wrong when getting rabbitMQ results.");
-                console.log("something went wrong when getting rabbitMQ results.");
+                $("#createKafkaMessage").text("something went wrong when getting kafka results.");
+                console.log("something went wrong when getting kafka results.");
             }
         });
 
@@ -265,88 +265,88 @@ function showMessageGraph(response) {
     Chart.defaults.global.elements.point.hitRadius = 20;
     Chart.defaults.global.elements.point.hoverBorderWidth = 4;
 
-        let datasets = [];
+    let datasets = [];
 
-        let dataset1 = {
-            label: 'high priority messages',
-            data: high_array,
-            backgroundColor: 'rgba(255, 0, 0, 1)',
-            borderColor: 'rgba(254, 100, 35, 1)',
-            borderWidth: 1,
-            fill: false,
-        };
+    let dataset1 = {
+        label: 'high priority messages',
+        data: high_array,
+        backgroundColor: 'rgba(255, 0, 0, 1)',
+        borderColor: 'rgba(254, 100, 35, 1)',
+        borderWidth: 1,
+        fill: false,
+    };
 
-        let dataset2 = {
-            label: 'medium priority messages',
-            data: medium_array,
-            backgroundColor: 'rgba(254, 162, 35, 0.35)',
-            borderColor: 'rgba(254, 162, 35, 1)',
-            borderWidth: 1,
-            fill: false,
-        };
+    let dataset2 = {
+        label: 'medium priority messages',
+        data: medium_array,
+        backgroundColor: 'rgba(254, 162, 35, 0.35)',
+        borderColor: 'rgba(254, 162, 35, 1)',
+        borderWidth: 1,
+        fill: false,
+    };
 
-        let dataset3 = {
-            label: 'low priority messages',
-            data: low_array,
-            backgroundColor: 'rgba(75, 192, 192, 0.35)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            fill: false,
-        };
+    let dataset3 = {
+        label: 'low priority messages',
+        data: low_array,
+        backgroundColor: 'rgba(75, 192, 192, 0.35)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        fill: false,
+    };
 
-        datasets.push(dataset1);
-        datasets.push(dataset2);
-        datasets.push(dataset3);
+    datasets.push(dataset1);
+    datasets.push(dataset2);
+    datasets.push(dataset3);
 
-        let ctx = document.getElementById("message_graph").getContext('2d');
-        let myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: "Messages with Three Priorities",
-                datasets: datasets,
+    let ctx = document.getElementById("message_graph").getContext('2d');
+    let myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: "Messages with Three Priorities",
+            datasets: datasets,
+        },
+        options: {
+            title: {
+                display: true,
+                text: "Messages with Three Priorities",
             },
-            options: {
-                title: {
+            scales: {
+                yAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
                     display: true,
-                    text: "Messages with Three Priorities",
-                },
-                scales: {
-                    yAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
+                    scaleLabel: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Message Sending Time',
-                            fontSize: 16
-                        },
-                        gridLines: {
-                            display: true
-                        },
-                        ticks: {
-                            beginAtZero:false,
-                            fontSize: 14,
-                        }
-                    }],
-                    xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
+                        labelString: 'Message Sending Time',
+                        fontSize: 16
+                    },
+                    gridLines: {
+                        display: true
+                    },
+                    ticks: {
+                        beginAtZero:false,
+                        fontSize: 14,
+                    }
+                }],
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
+                    display: true,
+                    scaleLabel: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Messages by Sequence',
-                            fontSize: 16
-                        },
-                        gridLines: {
-                            display: true
-                        },
-                        ticks: {
-                            beginAtZero:false,
-                            fontSize: 14,
-                        }
-                    }]
-                },
-            }
-        });
+                        labelString: 'Messages by Sequence',
+                        fontSize: 16
+                    },
+                    gridLines: {
+                        display: true
+                    },
+                    ticks: {
+                        beginAtZero:false,
+                        fontSize: 14,
+                    }
+                }]
+            },
+        }
+    });
 }
 
 

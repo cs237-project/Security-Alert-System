@@ -81,8 +81,8 @@ public class KafkaSenderController {
     @RequestMapping(value="/create/{type}")
     public Response createAlerts(@PathVariable(name = "type") String type){
         TYPE = type;
-        latitude = 45+Math.random()*30;
-        longitude = 40+Math.random()*30;
+        latitude = 52+Math.random()*30;
+        longitude = 52+Math.random()*30;
         KafkaReceiverController.receivedMessages= new ArrayList<>();
         KafkaReceiverController.averageTime = new ConcurrentHashMap<>();
         KafkaReceiverController.consumerCount=0;

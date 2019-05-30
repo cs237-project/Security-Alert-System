@@ -62,11 +62,9 @@ public class ActiveSenderController {
     @RequestMapping(value="/create/{type}")
     public Response createAlerts(@PathVariable(name = "type") String type){
         TYPE = type;
-        latitude = 45+Math.random()*30;
-        longitude = 40+Math.random()*30;
+        latitude = 52+Math.random()*30;
+        longitude = 52+Math.random()*30;
         List<Double> location = Arrays.asList(latitude,longitude);
         return Response.createBySuccess("Messages Created Successfully",location);
     }
-
-
 }
