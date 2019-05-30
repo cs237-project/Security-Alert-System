@@ -32,7 +32,6 @@ $(document).ready(function () {
                 url: clientUrl,
                 dataType: "json",
                 success: function (clientResponse) {
-                    $("#createActiveMQMessage").text(clientResponse.message);
                     messageHandle(emergencyType,clientResponse.data);
                 },
                 error: function () {
@@ -60,6 +59,12 @@ $(document).ready(function () {
                 clientLocation.push({id: data[i]['clientId'], x:data[i]['addressx'], y: data[i]['addressy']});
             }
         }
+        let circle1 = getLocArr(1000,15,sessionStorage.getItem("latitude"),sessionStorage.getItem("longitude"));
+        let circle2 = getLocArr(1000,20,sessionStorage.getItem("latitude"),sessionStorage.getItem("longitude"));
+        console.log(circle1);
+        console.log(circle2);
+        console.log(clientLocation);
+
         var myChart = new Chart(ctx, {
             type: 'scatter',
             data: {
@@ -67,11 +72,19 @@ $(document).ready(function () {
                 datasets: [{
                     data: clientLocation,
                     label: 'client location',
-                    backgroundColor: 'rgba(255, 0, 0, 1)',
+                    backgroundColor: 'rgba(0, 150, 150, 1)',
                 },{
                     data:emergencyLocation,
                     label: 'emergency location',
-                    backgroundColor: 'rgba(0, 255, 0, 1)',
+                    backgroundColor: 'rgba(255, 0, 0, 1)',
+                },{
+                    data:circle1,
+                    label: 'boundary1',
+                    backgroundColor: 'rgba(255, 255, 0, 1)',
+                },{
+                    data:circle2,
+                    label: 'boundary2',
+                    backgroundColor: 'rgba(255, 255, 0, 1)',
                 }]
             },
             options: {
@@ -371,6 +384,21 @@ function createResultTable(response) {
 
     console.log("result table: ",resultTable);
 }
+
+function getLocArr(num,r,centerx,centery){
+    let arr = [];
+    let du = 360/num;
+
+    for(let times=0;times<num;times++){
+        let hudu = (2*Math.PI/360)*(du*times-180);
+        let x = Math.round(centerx*1000)/1000+Math.round(Math.sin(hudu)*r*1000)/1000;
+        let y = Math.round(centery*1000)/1000+Math.round(Math.cos(hudu)*r*1000)/1000;
+        arr.push({id: -1, x:x, y: y})
+    }
+    return arr;
+}
+
+
 
 
 

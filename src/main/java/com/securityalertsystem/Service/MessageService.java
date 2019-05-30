@@ -119,7 +119,7 @@ public class MessageService {
         Map<String,String> map = new HashMap<>();
         for(String element:elements){
             String[] pair = element.split(":");
-            map.put(pair[0],pair[1]);
+            map.put(pair[0],pair[1].substring(1,pair[1].length()-1));
         }
         System.err.println("message ID: "+map.get("\"messageId\""));
         System.err.println(topic);
