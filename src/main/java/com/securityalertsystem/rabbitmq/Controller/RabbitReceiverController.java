@@ -37,8 +37,8 @@ public class RabbitReceiverController {
     @Autowired
     MessageService messageService;
 
-    private Map<Integer,Long> averageTime = new HashMap<>();
-    private List<AlertMessage> receivedMessages = new ArrayList<>();
+    public static Map<Integer,Long> averageTime = new HashMap<>();
+    public static List<AlertMessage> receivedMessages = new ArrayList<>();
     private List<Integer> high_client = new ArrayList<>();
     private List<Integer> mid_client = new ArrayList<>();
     private List<Integer> low_client = new ArrayList<>();
@@ -57,6 +57,9 @@ public class RabbitReceiverController {
 
         DeliverCallback deliverCallback = (consumerTag, delivery)->{
             String message =  new String(delivery.getBody(), "UTF-8");
+            if(delivery.getBody()==null){
+                System.out.println("There is a bad message");
+            }
 
             Gson gson = new Gson();
             AlertMessage alertMessage = gson.fromJson(message,AlertMessage.class);

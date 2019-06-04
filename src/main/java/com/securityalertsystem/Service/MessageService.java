@@ -119,6 +119,10 @@ public class MessageService {
         Map<String,String> map = new HashMap<>();
         for(String element:elements){
             String[] pair = element.split(":");
+            if(pair[0].equals("\"receivedTime\"")){
+                map.put(pair[0],pair[1]);
+                continue;
+            }
             map.put(pair[0],pair[1].substring(1,pair[1].length()-1));
         }
         System.err.println("message ID: "+map.get("\"messageId\""));
@@ -150,9 +154,9 @@ public class MessageService {
                         Math.pow(longitude-client.getAddressy(),2));
             }
 
-            if(distance<=15){
+            if(distance<=10){
                 group1.add(client.getClientId());
-            }else if(distance>15 && distance<=20){
+            }else if(distance>10 && distance<=20){
                 group2.add(client.getClientId());
             }else{
                 group3.add(client.getClientId());

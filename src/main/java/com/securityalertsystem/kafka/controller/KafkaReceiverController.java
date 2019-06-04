@@ -96,6 +96,7 @@ public class KafkaReceiverController {
         }
         for(int p:averageTime.keySet()){
             averageTime.put(p,averageTime.get(p)/size_of_queue[p]);
+            System.out.println(averageTime.get(p));
         }
         return Response.createBySuccess("Get test result successfully",averageTime);
     }

@@ -43,6 +43,9 @@ public class ActiveSenderController {
         if(clients.size()==0){
             return Response.createByErrorMessage("Need get clients information. Please input url \"/getClients\"");
         }
+        ActiveReceiverController.averageTime = new HashMap<>();
+        ActiveReceiverController.receivedMessages = new ArrayList<>();
+
         List<Integer> group1=new ArrayList<>(),group2 = new ArrayList<>(),group3 = new ArrayList<>();
         messageService.calPriority(clients,group1,group2,group3,latitude,longitude,TYPE);
         int len1 = group1.size(),len2 = group2.size(),len3=group3.size();

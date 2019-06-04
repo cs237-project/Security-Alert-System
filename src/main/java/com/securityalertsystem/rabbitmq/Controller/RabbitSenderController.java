@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/rabbitmq/messageSender")
@@ -39,6 +36,8 @@ public class RabbitSenderController {
     @RequestMapping(value="/send")
     public Response sendAlerts(){
         sendTime = System.currentTimeMillis();
+        RabbitReceiverController.averageTime=new HashMap<>();
+        RabbitReceiverController.receivedMessages = new ArrayList<>();
         messageService.sendAlertNearbyforJson(TYPE,happenTime,alertSender,sendTime);
         messageService.sendAlertMidforJson(TYPE,happenTime,alertSender,sendTime);
         messageService.sendAlertFarawayforJson(TYPE,happenTime,alertSender,sendTime);
@@ -47,8 +46,8 @@ public class RabbitSenderController {
     @RequestMapping(value="/create/{type}")
     public Response createAlerts(@PathVariable(name = "type") String type){
         TYPE = type;
-        latitude = 52+Math.random()*30;
-        longitude = 52+Math.random()*30;
+        latitude = 50+Math.random()*30;
+        longitude = 50+Math.random()*30;
         List<Double> location = Arrays.asList(latitude,longitude);
         return Response.createBySuccess("Messages Created Successfully",location);
     }

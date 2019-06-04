@@ -63,7 +63,7 @@ $(document).ready(function () {
                 clientLocation.push({id: data[i]['clientId'], x:data[i]['addressx'], y: data[i]['addressy']});
             }
         }
-        let circle1 = getLocArr(1000,15,sessionStorage.getItem("latitude"),sessionStorage.getItem("longitude"));
+        let circle1 = getLocArr(1000,10,sessionStorage.getItem("latitude"),sessionStorage.getItem("longitude"));
         let circle2 = getLocArr(1000,20,sessionStorage.getItem("latitude"),sessionStorage.getItem("longitude"));
         var myChart = new Chart(ctx, {
             type: 'scatter',
@@ -257,6 +257,9 @@ function showMessageGraph(response) {
 
     for (let i = 0; i < totalLen; i++) {
         let message = data[i];
+        if (message === null) {
+            continue;
+        }
         total_array.push({id: message['messageId'], x: i, y: message['receivedTime']});
         if (message.location === "Within 3 miles"){
             high_array.push({id: message['messageId'], x: i, y: message['receivedTime']});
@@ -266,6 +269,7 @@ function showMessageGraph(response) {
             low_array.push({id: message['messageId'], x: i, y: message['receivedTime']});
         }
     }
+    console.log("total array",total_array)
 
     console.log("high array:", high_array);
     console.log("medium array:", medium_array);

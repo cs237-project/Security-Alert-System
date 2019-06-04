@@ -31,9 +31,9 @@ public class ActiveReceiverController {
     @Autowired
     MessageService messageService;
 
-    private Map<Integer,Long> averageTime = new HashMap<>();
+    public static Map<Integer,Long> averageTime = new HashMap<>();
 
-    private List<AlertMessage> receivedMessages = new ArrayList<>();
+    public static List<AlertMessage> receivedMessages = new ArrayList<>();
     private List<Integer> high_client = new ArrayList<>();
     private List<Integer> mid_client = new ArrayList<>();
     private List<Integer> low_client = new ArrayList<>();

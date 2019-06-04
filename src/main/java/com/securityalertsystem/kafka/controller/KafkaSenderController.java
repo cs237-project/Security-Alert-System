@@ -55,6 +55,8 @@ public class KafkaSenderController {
             return Response.createByErrorMessage("Please add clients");
         }
 
+        KafkaReceiverController.receivedMessages= new ArrayList<>();
+        KafkaReceiverController.averageTime = new ConcurrentHashMap<>();
         List<Integer> group1=new ArrayList<>(),group2 = new ArrayList<>(),group3 = new ArrayList<>();
         messageService.calPriority(clients,group1,group2,group3,latitude,longitude,TYPE);
         int len1 = group1.size(),len2 = group2.size(),len3=group3.size();
@@ -83,8 +85,6 @@ public class KafkaSenderController {
         TYPE = type;
         latitude = 52+Math.random()*30;
         longitude = 52+Math.random()*30;
-        KafkaReceiverController.receivedMessages= new ArrayList<>();
-        KafkaReceiverController.averageTime = new ConcurrentHashMap<>();
         KafkaReceiverController.consumerCount=0;
         List<Double> location = Arrays.asList(latitude,longitude);
         return Response.createBySuccess("Messages Created Successfully",location);
