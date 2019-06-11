@@ -11,11 +11,14 @@ Security Alert System based on Pub/Sub Middleware Environment
 
 5. read test result
 
+Start all the message queue framework run:
+
+bash init.sh
+
+Stop all the message queue framework run:
+
+bash stop.sh
+
 When using kafka, we should purge all the queues by deleting all the existing topic before test.
 
-bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic "topic_name"
-
-### Todo:
-1. Need to build a front-end test environment
-2. Need to fix the problem of kafka which does not consume the message in queue.
- 
+bash purge.sh
