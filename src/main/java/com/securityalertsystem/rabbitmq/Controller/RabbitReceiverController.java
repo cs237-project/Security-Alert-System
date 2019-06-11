@@ -1,11 +1,13 @@
 package com.securityalertsystem.rabbitmq.Controller;
 
 
+import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import com.securityalertsystem.Service.MessageService;
+import com.securityalertsystem.common.Response;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.repository.ClientRepository;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.securityalertsystem.rabbitmq.Controller.RabbitSenderController.TYPE;
 import static com.securityalertsystem.rabbitmq.Controller.RabbitSenderController.latitude;
@@ -33,11 +37,12 @@ public class RabbitReceiverController {
     @Autowired
     MessageService messageService;
 
-
-    private List<String> receivedMessages = new ArrayList<>();
+    public static Map<Integer,Long> averageTime = new HashMap<>();
+    public static List<AlertMessage> receivedMessages = new ArrayList<>();
     private List<Integer> high_client = new ArrayList<>();
     private List<Integer> mid_client = new ArrayList<>();
     private List<Integer> low_client = new ArrayList<>();
+    private  int[] size_of_queue = new int[3];
 
 
     private void onAlertMessage(String exchangeName,int clientId,int priority) throws Exception{
@@ -48,12 +53,25 @@ public class RabbitReceiverController {
         String queueName = "queue"+clientId;
         channel.exchangeDeclare(exchangeName,"fanout",true);
         channel.queueDeclare(queueName, true, false, true, null); //durable, automatically deleted
-        channel.queueBind(queueName,exchangeName,"");
+        channel.queueBind(queueName,exchangeName,"alert.abc");
 
         DeliverCallback deliverCallback = (consumerTag, delivery)->{
-            AlertMessage message =  SerializationUtils.deserialize(delivery.getBody());
+            String message =  new String(delivery.getBody(), "UTF-8");
+            if(delivery.getBody()==null){
+                System.out.println("There is a bad message");
+            }
 
-            receivedMessages.add(messageService.transferMessage(clientId,priority,message));
+            Gson gson = new Gson();
+            AlertMessage alertMessage = gson.fromJson(message,AlertMessage.class);
+            long timegap = System.currentTimeMillis()-alertMessage.getReceivedTime();
+            if(!averageTime.containsKey(priority)){
+                averageTime.put(priority,timegap);
+            }else{
+                long prev = averageTime.get(priority);
+                averageTime.put(priority,prev+timegap);
+            }
+            alertMessage.setReceivedTime(timegap);
+            receivedMessages.add(alertMessage);
         };
         channel.basicConsume(queueName,true,deliverCallback,consumerTag->{});
 
@@ -61,16 +79,19 @@ public class RabbitReceiverController {
 
 
     @RequestMapping("/createQueue")
-    public String createQueue(){
+    public Response createQueue(){
         List<Client> clients = clientRepository.findAll();
         if(clients.size()==0){
-            return "Need get clients information. Please input url \"/getClients\"";
+            return Response.createByErrorMessage("Need get clients information. Please input url \"/getClients\"");
         }
         if(TYPE.equals("")){
-            return "There is no Message";
+            return Response.createByErrorMessage("There is no Message");
         }
         messageService.calPriority(clients,high_client,mid_client,low_client,
                latitude, longitude, TYPE);
+        size_of_queue[0] = high_client.size();
+        size_of_queue[1] = mid_client.size();
+        size_of_queue[2] = low_client.size();
         for(int id:high_client){
             try {
                 onAlertMessage("alert-exchange0",id,0);
@@ -92,18 +113,34 @@ public class RabbitReceiverController {
                 e.printStackTrace();
             }
         }
-        return "Queue Created!";
+        return Response.createBySuccessMessage("Create Queue Succeed");
     }
 
     @RequestMapping("/getMsg")
-    public String getMsg(){
-        StringBuilder sb = new StringBuilder();
-
-        if(receivedMessages.size()>0){
-            for(String receivedMessage:receivedMessages){
-                sb.append(receivedMessage);
-            }
+    public Response getMsg(){
+//        StringBuilder sb = new StringBuilder();
+//
+//        if(receivedMessages.size()>0){
+//            for(String receivedMessage:receivedMessages){
+//                sb.append(receivedMessage);
+//            }
+//        }
+//        return sb.toString();
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no message received");
         }
-        return sb.toString();
+        return Response.createBySuccess("Get messages successfully",receivedMessages);
     }
+
+    @RequestMapping("/getResult")
+    public Response getResult(){
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no result");
+        }
+        for(int p:averageTime.keySet()){
+            averageTime.put(p,averageTime.get(p)/size_of_queue[p]);
+        }
+        return Response.createBySuccess("Get test result successfully",averageTime);
+    }
+
 }

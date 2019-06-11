@@ -1,5 +1,6 @@
 package com.securityalertsystem.Service;
 
+import com.google.gson.Gson;
 import com.securityalertsystem.Constants.Constants;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
@@ -52,19 +53,64 @@ public class MessageService {
         }
     }
 
-    public String transferMessage(int consumer, int priority, AlertMessage message){
-        System.err.println("----------received message-----------");
-        System.err.println("message ID: "+message.getMessageId());
-        message.setReceivedTime(System.currentTimeMillis()-message.getReceivedTime());
-        String result = "<p>"+consumer+" "+"priority="+priority+" "+
-                "MessageId: "+message.getMessageId()+" "+
-                "Location: "+message.getLocation()+" "+
-                "Emergency Type: "+message.getType()+" "+
-                "Happen Time: "+message.getHappenTime()+" " +
-                "Time gap of receiving message: "+message.getReceivedTime()+"</p>";
-        return result;
+    public void sendAlertNearbyforJson(String type,String happenTime,AlertSender alertSender, Long sendTime){ //Maybe 1-3 miles
+        AlertMessage message = new AlertMessage();
+        message.setMessageId(System.currentTimeMillis() + "$" + UUID.randomUUID().toString());
+        message.setHappenTime(happenTime);
+        message.setLocation("Within 3 miles");
+        message.setType(type);
+        message.setReceivedTime(sendTime);
+        Gson gson = new Gson();
+        String s = gson.toJson(message);
+        try {
+            alertSender.send1(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    public String transferMessage(String topic,String message){
+    public void sendAlertMidforJson(String type,String happenTime,AlertSender alertSender,long sendTime){ //Maybe 3-10 miles or further
+        AlertMessage message = new AlertMessage();
+        message.setMessageId(System.currentTimeMillis() + "$" + UUID.randomUUID().toString());
+        message.setHappenTime(happenTime);
+        message.setLocation("3-10 miles away");
+        message.setType(type);
+        message.setReceivedTime(sendTime);
+        Gson gson = new Gson();
+        String s = gson.toJson(message);
+        try {
+            alertSender.send2(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void sendAlertFarawayforJson(String type,String happenTime,AlertSender alertSender,long sendTime){ //Maybe 10 miles or further
+        AlertMessage message = new AlertMessage();
+        message.setMessageId(System.currentTimeMillis() + "$" + UUID.randomUUID().toString());
+        message.setHappenTime(happenTime);
+        message.setLocation("Further than 10 miles");
+        message.setType(type);
+        message.setReceivedTime(sendTime);
+        Gson gson = new Gson();
+        String s = gson.toJson(message);
+        try {
+            alertSender.send3(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+//    public String transferMessage(int consumer, int priority, AlertMessage message){
+//        System.err.println("----------received message-----------");
+//        System.err.println("message ID: "+message.getMessageId());
+//        message.setReceivedTime(System.currentTimeMillis()-message.getReceivedTime());
+//        String result = consumer+" "+"priority="+priority+" "+
+//                "MessageId: "+message.getMessageId()+" "+
+//                "Location: "+message.getLocation()+" "+
+//                "Emergency Type: "+message.getType()+" "+
+//                "Happen Time: "+message.getHappenTime()+" ";
+//        return result;
+//    }
+    public AlertMessage transferMessage(String topic,String message){
         //{"messageId":"1558071957842$cabcf621-1a58-4346-bacf-56292f2cc214","type":"flooding","location":"3-10 miles away","happenTime":"Thu May 16 22:45:33 PDT 2019","receivedTime":1558071957842}
         System.err.println("----------received message-----------");
         long curTime = System.currentTimeMillis();
@@ -73,18 +119,23 @@ public class MessageService {
         Map<String,String> map = new HashMap<>();
         for(String element:elements){
             String[] pair = element.split(":");
-            map.put(pair[0],pair[1]);
+            if(pair[0].equals("\"receivedTime\"")){
+                map.put(pair[0],pair[1]);
+                continue;
+            }
+            map.put(pair[0],pair[1].substring(1,pair[1].length()-1));
         }
         System.err.println("message ID: "+map.get("\"messageId\""));
         System.err.println(topic);
         long gap = curTime-Long.valueOf(map.get("\"receivedTime\""));
         map.put("\"receivedTime\"",String.valueOf(gap));
-        String result = "<p>"+" "+topic+" "+
-                "MessageId: "+map.get("\"messageId\"")+" "+
-                "Location: "+map.get("\"location\"")+" "+
-                "Emergency Type: "+map.get("\"type\"")+" "+
-                "Happen Time: "+map.get("\"happenTime\"")+" " +
-                "Time gap of receiving message: "+map.get("\"receivedTime\"")+"</p>";
+        AlertMessage result = new AlertMessage();
+        result.setType(map.get("\"type\""));
+        result.setMessageId(map.get("\"messageId\""));
+        result.setLocation(map.get("\"location\""));
+        result.setHappenTime(map.get("\"happenTime\""));
+        result.setReceivedTime(Long.valueOf(map.get("\"receivedTime\"")));
+
         return result;
     }
 
@@ -103,9 +154,9 @@ public class MessageService {
                         Math.pow(longitude-client.getAddressy(),2));
             }
 
-            if(distance<=15){
+            if(distance<=10){
                 group1.add(client.getClientId());
-            }else if(distance>15 && distance<=20){
+            }else if(distance>10 && distance<=20){
                 group2.add(client.getClientId());
             }else{
                 group3.add(client.getClientId());

@@ -10,7 +10,7 @@ public class ConsumerGroup {
     public ConsumerGroup(int consumerNum, int groupoffset, String topic, String brokerList){
         consumers = new ArrayList<>(consumerNum);
         for(int i=0;i<consumerNum;++i){
-            ConsumerRunnable consumerThread = new ConsumerRunnable(brokerList, "group"+groupoffset+i, topic);
+            ConsumerRunnable consumerThread = new ConsumerRunnable(brokerList, "group"+(groupoffset+i), topic);
             consumers.add(consumerThread);
         }
     }

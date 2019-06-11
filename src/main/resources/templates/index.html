@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <title>Security Alert System</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"></script>
+    <script type="text/javascript" th:src="@{./js/index.js}"></script>
+    <link href="../static/css/general.css"
+          th:href="@{/css/general.css}"
+          rel="stylesheet" media="screen" />
+</head>
+<body>
+<div class="page-header">
+    <h1>Security Alert System Message Queue Demo</h1>
+</div>
+<p>
+    <button type="button" class="btn btn-default btn-lg btn-block" onclick="window.location.href='rabbitmq'">RabbitMQ example</button>
+</p>
+<p>
+    <button type="button" class="btn btn-default btn-lg btn-block" onclick="window.location.href='activemq'">ActiveMQ example</button>
+</p>
+<p>
+    <button type="button" class="btn btn-default btn-lg btn-block" onclick="window.location.href='kafka'">kakfa example</button>
+</p>
+
+<div class="page-header">
+    <h2>General configuration</h2>
+    <div>
+        <h3>Add Clients</h3>
+        <form class="form-container" method="get" onsubmit="return false" role="form">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="clientNumber" placeholder="client number">
+                        <span class="input-group-btn">
+						<button class="btn btn-default" type="button" id="addClient">
+							Add Clients
+						</button>
+					</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div id="add_client_message"></div>
+    </div>
+
+    <div>
+        <h3>Get Current Clients</h3>
+        <button class="btn btn-default" id="getClients" value="submit" onclick="getClientResult('/client/getClients')">
+            get Clients
+        </button>
+        <div id="get_clients" style="white-space:pre"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12" style="white-space:pre">
+                    <canvas id="client_locations" width="500" height="300"></canvas>
+                </div>
+                <div id="description"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.securityalertsystem.activemq.controller;
 
 import com.securityalertsystem.Service.MessageService;
+import com.securityalertsystem.common.Response;
 import com.securityalertsystem.entity.AlertMessage;
 import com.securityalertsystem.entity.Client;
 import com.securityalertsystem.repository.ClientRepository;
@@ -13,8 +14,9 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 @RestController
@@ -29,24 +31,29 @@ public class ActiveReceiverController {
     @Autowired
     MessageService messageService;
 
+    public static Map<Integer,Long> averageTime = new HashMap<>();
 
-    private List<String> receivedMessages = new ArrayList<>();
+    public static List<AlertMessage> receivedMessages = new ArrayList<>();
     private List<Integer> high_client = new ArrayList<>();
     private List<Integer> mid_client = new ArrayList<>();
     private List<Integer> low_client = new ArrayList<>();
+    private  int[] size_of_queue = new int[3];
 
         @RequestMapping("/createQueue")
-        public String createConsumer(String queueName) throws Exception{
+        public Response createConsumer(String queueName) throws Exception{
 
             List<Client> clients = clientRepository.findAll();
             if(clients.size()==0){
-                return "Need get clients information. Please input url \"/getClients\"";
+                return Response.createByErrorMessage("Need get clients information. Please input url \"/getClients\"");
             }
             if(ActiveSenderController.TYPE.equals("")){
-                return "There is no Message";
+                return Response.createByErrorMessage("There is no Message");
             }
             messageService.calPriority(clients,high_client,mid_client,low_client,
                     ActiveSenderController.latitude, ActiveSenderController.longitude, ActiveSenderController.TYPE);
+            size_of_queue[0] = high_client.size();
+            size_of_queue[1] = mid_client.size();
+            size_of_queue[2] = low_client.size();
             for(int id:high_client){
                 try {
                     onAlertMessage(id,0);
@@ -68,7 +75,7 @@ public class ActiveReceiverController {
                     e.printStackTrace();
                 }
             }
-            return "Create Queue Succeed";
+            return Response.createBySuccessMessage("Create Queue Succeed");
         }
 
 
@@ -95,7 +102,15 @@ public class ActiveReceiverController {
                 ActiveMQObjectMessage objectMessage = (ActiveMQObjectMessage) message;
                 try{
                     AlertMessage alertMessage = (AlertMessage)objectMessage.getObject();
-                    receivedMessages.add(messageService.transferMessage(clientId,priority,alertMessage));
+                    long timegap = System.currentTimeMillis()-alertMessage.getReceivedTime();
+                    if(!averageTime.containsKey(priority)){
+                        averageTime.put(priority,timegap);
+                    }else{
+                        long prev = averageTime.get(priority);
+                        averageTime.put(priority,prev+timegap);
+                    }
+                    alertMessage.setReceivedTime(timegap);
+                    receivedMessages.add(alertMessage);
                 } catch (JMSException e){
                     e.printStackTrace();
                 }
@@ -105,15 +120,28 @@ public class ActiveReceiverController {
     }
 
     @RequestMapping("/getMsg")
-    public String getMsg(){
-            StringBuilder sb = new StringBuilder();
-
-        if(receivedMessages.size()>0){
-            for(String receivedMessage:receivedMessages){
-                sb.append(receivedMessage);
-            }
+    public Response getMsg(){
+//            StringBuilder sb = new StringBuilder();
+//
+//        if(receivedMessages.size()>0){
+//            for(String receivedMessage:receivedMessages){
+//                sb.append(receivedMessage);
+//            }
+//        }
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no message received");
         }
-        return sb.toString();
+        return Response.createBySuccess("Get messages successfully",receivedMessages);
+    }
+    @RequestMapping("/getResult")
+    public Response getResult(){
+        if(receivedMessages.size()==0){
+            return Response.createByErrorMessage("There is no result");
+        }
+        for(int p:averageTime.keySet()){
+            averageTime.put(p,averageTime.get(p)/size_of_queue[p]);
+        }
+        return Response.createBySuccess("Get test result successfully",averageTime);
     }
 
 }
